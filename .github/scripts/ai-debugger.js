@@ -1,5 +1,6 @@
+import fs from 'fs';
 import Groq from 'groq-sdk';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 async function runAIHealing(prompt) {
   // 1. Try Groq first (Fast & Free)
@@ -15,11 +16,10 @@ async function runAIHealing(prompt) {
   }
 
   // 2. Fall back to Google AI Studio if Groq fails
-  try {
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+const result = await model.generateContent(prompt);
+const responseText = result.response.text();
     });
     return response.text;
   } catch (geminiError) {
