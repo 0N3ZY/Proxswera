@@ -8,6 +8,8 @@ on:
 jobs:
   diagnose-and-heal:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Allows the AI agent to commit and push fixes back to the repo
 
     steps:
       - name: Checkout Code
