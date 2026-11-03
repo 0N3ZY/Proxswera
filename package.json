@@ -3,12 +3,12 @@
 	"version": "1.0.0",
 	"description": "Scramjet Proxy optimized for Render",
 	"type": "module",
+	"scripts": {
+		"dev": "node --no-warnings=ExperimentalWarning devserver.ts",
+		"start": "node --no-warnings=ExperimentalWarning devserver.ts"
+	},
 	"engines": {
 		"node": ">=20.0.0"
-	},
-	"packageManager": "pnpm@9.0.0",
-	"scripts": {
-		"start": "node --no-warnings=ExperimentalWarning devserver.ts"
 	},
 	"dependencies": {
 		"@fastify/deepmerge": "^3.2.1",
