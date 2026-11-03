@@ -1,8 +1,8 @@
 FROM node:20-slim
 WORKDIR /app
 
-# Enable corepack to handle pnpm automatically
-RUN corepack enable && corepack prepare pnpm@12.17.0 --activate
+# Enable corepack and prepare pnpm matching version 9.0.0
+RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
 
 # Copy dependency files first to cache installations
 COPY package.json pnpm-lock.yaml* ./
