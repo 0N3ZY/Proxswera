@@ -20,25 +20,16 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install pnpm & Dependencies
+      - name: Install Dependencies & Run Build Check
         id: test_build
         continue-on-error: true
         run: |
           corepack enable && corepack prepare pnpm@9.0.0 --activate
-          pnpm install --no-frozen-lockfile || npm install
           
-          # Install dependencies required specifically for the AI debugger script
-          npm install groq-sdk @google/genai
+          # Install root dependencies including AI SDKs safely
+          npm install --legacy-peer-deps
           
           pnpm dev || pnpm build || exit 1
-
-      - name: Run Dual-AI Diagnostic & Fix Script
-        if: steps.test_build.outcome == 'failure'
-        env:
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: |
-          node .github/scripts/ai-debugger.js
 
       - name: Commit and Push AI Patches
         if: steps.test_build.outcome == 'failure'
