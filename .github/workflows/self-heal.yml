@@ -3,13 +3,13 @@ name: AI Self-Healing Loop
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */6 * * *' # Checks health every 6 hours
+    - cron: '0 */6 * * *'
 
 jobs:
   diagnose-and-heal:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Allows the AI agent to commit and push fixes back to the repo
+      contents: write
 
     steps:
       - name: Checkout Code
@@ -20,12 +20,16 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install pnpm & Run Build Check
+      - name: Install pnpm & Dependencies
         id: test_build
         continue-on-error: true
         run: |
           corepack enable && corepack prepare pnpm@9.0.0 --activate
-          pnpm install
+          pnpm install --no-frozen-lockfile || npm install
+          
+          # Install dependencies required specifically for the AI debugger script
+          npm install groq-sdk @google/genai
+          
           pnpm dev || pnpm build || exit 1
 
       - name: Run Dual-AI Diagnostic & Fix Script
