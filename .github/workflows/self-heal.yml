@@ -1,0 +1,44 @@
+name: AI Self-Healing Loop
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */6 * * *' # Checks health every 6 hours
+
+jobs:
+  diagnose-and-heal:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm & Run Build Check
+        id: test_build
+        continue-on-error: true
+        run: |
+          corepack enable && corepack prepare pnpm@9.0.0 --activate
+          pnpm install
+          pnpm dev || pnpm build || exit 1
+
+      - name: Run Dual-AI Diagnostic & Fix Script
+        if: steps.test_build.outcome == 'failure'
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          node .github/scripts/ai-debugger.js
+
+      - name: Commit and Push AI Patches
+        if: steps.test_build.outcome == 'failure'
+        run: |
+          git config --global user.name "Scramjet-AI-Agent"
+          git config --global user.email "ai-agent@system.local"
+          git add .
+          git commit -m "🤖 AI Auto-Patch: Resolved build/runtime errors" || echo "No changes to commit"
+          git push
