@@ -12,7 +12,6 @@
 	},
 	"dependencies": {
 		"@fastify/deepmerge": "^3.2.1",
-		"@mercuryworkshop/wisp-js": "catalog:",
 		"chafa-wasm": "^0.3.1",
 		"chalk": "^5.6.2",
 		"glob": "^13.0.6",
