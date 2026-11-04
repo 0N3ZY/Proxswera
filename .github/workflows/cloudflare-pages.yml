@@ -1,0 +1,39 @@
+name: Deploy Cloudflare Pages
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: cloudflare-pages-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy static frontend
+    if: >-
+      ${{ github.event.workflow_run.conclusion == 'success' &&
+          secrets.CLOUDFLARE_API_TOKEN != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download built frontend
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend
+          path: ./frontend
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: d101b2f159ae9b6cdab08c518f0de76c
+          command: pages deploy ./frontend --project-name=scramjet-static --branch=main
