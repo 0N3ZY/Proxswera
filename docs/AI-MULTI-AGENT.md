@@ -24,7 +24,7 @@ All defaults are intended for free-tier use and can be changed with GitHub Actio
 - Gemini: `gemini-2.5-flash`
 - Groq: `llama-3.3-70b-versatile`
 - OpenRouter: `openrouter/free` (routes to an available free model)
-- Mistral: `mistral-small-latest` (Mistral Free mode allowance)
+- Mistral: `mistral-small-latest` (only where the account has free Experiment-tier access)
 - Cloudflare Workers AI: `@cf/zai-org/glm-4.7-flash`
 
 Free model availability, quotas, and provider policies can change. The workflow does not intentionally switch to paid model IDs. Provider errors or exhausted quotas cause a safe stop rather than a paid fallback.
@@ -38,7 +38,7 @@ Free model availability, quotas, and provider policies can change. The workflow 
 5. Two separately assigned reviewers must both approve it.
 6. The existing deterministic patch verifier, whitespace checks, and full Docker rebuild still run before a repair PR can be opened.
 
-The agents exchange context through the orchestrator; they do not share credentials or have direct access to one another's provider accounts. If fewer than two providers are configured, or a required agent/reviewer fails, the system stops without emitting a patch.
+The agents exchange context through the orchestrator; they do not share credentials or have direct access to one another's provider accounts. At least three providers must be configured so the patch author and both reviewers are distinct. If fewer than three providers are configured, or a required agent/reviewer fails, the system stops without emitting a patch.
 
 ## Safety boundaries
 
