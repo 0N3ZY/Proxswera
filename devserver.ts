@@ -99,7 +99,7 @@ async function startProductionServer() {
       // build output cannot point the public server outside that directory.
       filePath = await realpath(filePath);
       if (filePath !== realDistDir && !filePath.startsWith(realDistDir + path.sep)) {
-        res.writeHead(403).end("Forbidden");
+        res.writeHead(403).end(req.method === "HEAD" ? undefined : "Forbidden");
         return;
       }
       fileInfo = await stat(filePath);
