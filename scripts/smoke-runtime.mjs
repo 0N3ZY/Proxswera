@@ -7,6 +7,11 @@ assert.match(root.headers.get("content-type") || "", /text\/html/i, "Root should
 const html = await root.text();
 assert.ok(html.length > 100, "Root HTML should not be empty");
 
+const healthHead = await fetch(base + "/healthz", { method: "HEAD" });
+assert.equal(healthHead.status, 200, "HEAD /healthz should return 200");
+assert.equal(await healthHead.text(), "", "HEAD /healthz must not return a body");
+assert.equal(healthHead.headers.get("content-length"), "2");
+
 const head = await fetch(base + "/", { method: "HEAD" });
 assert.equal(head.status, 200, "HEAD / should return 200");
 assert.equal(await head.text(), "", "HEAD must not return a response body");
@@ -28,7 +33,13 @@ assert.equal(spa.status, 200, "Unknown browser navigation route should use SPA f
 assert.match(spa.headers.get("content-type") || "", /text\/html/i);
 const missingAsset = await fetch(base + "/__missing_smoke_asset__.js", { headers: { Accept: "*/*" } });
 assert.equal(missingAsset.status, 404, "Missing asset must remain a real 404");
+const missingAssetHead = await fetch(base + "/__missing_smoke_asset__.js", { method: "HEAD" });
+assert.equal(missingAssetHead.status, 404, "HEAD for a missing asset must remain a real 404");
+assert.equal(await missingAssetHead.text(), "", "HEAD 404 responses must not contain a body");
 
+const traversalHead = await fetch(base + "/%2e%2e%2fpackage.json", { method: "HEAD", headers: { Accept: "*/*" } });
+assert.equal(traversalHead.status, 403, "HEAD traversal must be rejected");
+assert.equal(await traversalHead.text(), "", "HEAD traversal responses must not contain a body");
 const traversal = await fetch(base + "/%2e%2e%2fpackage.json", { headers: { Accept: "*/*" } });
 assert.equal(traversal.status, 403, "Encoded path traversal must be rejected");
 const symlinkEscape = await fetch(base + "/__outside.txt", { headers: { Accept: "*/*" } });
