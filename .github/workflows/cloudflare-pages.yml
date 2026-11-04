@@ -20,7 +20,7 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CFP_API_KEY: ${{ secrets.CFP_API_KEY }}
     steps:
       - name: Download built frontend
         uses: actions/download-artifact@v4
@@ -32,9 +32,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy to Cloudflare Pages
-        if: env.CLOUDFLARE_API_TOKEN != ''
+        if: env.CFP_API_KEY != ''
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          apiToken: ${{ secrets.CFP_API_KEY }}
           accountId: d101b2f159ae9b6cdab08c518f0de76c
           command: pages deploy ./frontend --project-name=scramjet-static --branch=main
