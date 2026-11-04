@@ -53,9 +53,11 @@ jobs:
             echo "An AI optimisation PR is already open for $BRANCH."
             exit 0
           fi
-          echo "found=true" >> "$GITHUB_OUTPUT"
-          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
-          echo "number=$NUMBER" >> "$GITHUB_OUTPUT"
+          {
+            echo "found=true"
+            echo "branch=$BRANCH"
+            echo "number=$NUMBER"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Prepare isolated upstream candidate
         if: steps.candidate.outputs.found == 'true'
@@ -128,6 +130,7 @@ jobs:
           cleanup() { docker rm -f scramjetfork-ai-optimised >/dev/null 2>&1 || true; }
           trap cleanup EXIT
           for attempt in $(seq 1 30); do
+            : "$attempt"
             if curl --fail --silent http://127.0.0.1:10000/healthz | grep -q '^ok$'; then break; fi
             sleep 2
           done
