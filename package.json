@@ -4,7 +4,7 @@
 	"description": "Scramjet Proxy optimized for Render",
 	"type": "module",
 	"scripts": {
-		"dev": "node --no-warnings=ExperimentalWarning devserver.ts",
+		"dev": "tsx devserver.ts",
 		"start": "node --no-warnings=ExperimentalWarning devserver.ts"
 	},
 	"engines": {
