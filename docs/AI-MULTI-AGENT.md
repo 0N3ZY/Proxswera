@@ -29,7 +29,7 @@ All defaults are intended for free-tier use and can be changed with GitHub Actio
 - Mistral: `mistral-small-latest` (only where the account has free Experiment-tier access)
 - Cloudflare Workers AI: `@cf/zai-org/glm-4.7-flash`
 
-Free model availability, quotas, and provider policies can change. The workflow does not intentionally switch to paid model IDs. Provider errors or exhausted quotas cause a safe stop rather than a paid fallback.
+Free model availability, quotas, and provider policies can change. The workflow does not intentionally switch to paid model IDs, but it cannot enforce provider-side billing limits: an API call may be billed if an account has billing enabled or its free allowance is exhausted. Set provider spending limits/alerts, or remove a provider secret to disable that provider. Mistral is only intended for accounts with free Experiment-tier access. Cloudflare Workers AI has usage-based pricing beyond its free allowance. Google states that Gemini API free-tier content may be used to improve its products, so do not send material you do not want handled under those terms.
 
 ## How collaboration works
 
