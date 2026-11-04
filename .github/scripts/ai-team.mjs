@@ -15,7 +15,7 @@ const scrub = value => {
   return result;
 };
 const excluded=/(^|\/)(node_modules|vendor|dist|build|coverage)(\/|$)|(^|\/)(pnpm-lock\.yaml|package-lock\.json|yarn\.lock|Cargo\.lock)$/i;
-const secret=/(^|\/)(\.env[^/]*|\.npmrc|\.netrc|\.pypirc|\.git-credentials|\.docker\/config\.json|secrets?(\.[^/]*)?|credentials?(\.[^/]*)?|id_(?:rsa|ed25519|ecdsa)|.*\.(pem|p12|pfx|key|jks|keystore|p8))$/i;
+const secret=/(^|\/)(\.env[^/]*|\.npmrc|\.netrc|\.pypirc|\.git-credentials|\.docker\/config\.json|secrets?(\.[^/]*)?|credentials?(\.[^/]*)?|id_(?:rsa|ed25519|ecdsa)|.*\.(pem|p12|pfx|key|jks|keystore|p8|der))$/i;
 const secretDir=/(^|\/)(\.ssh|\.aws|\.kube)(\/|$)/i;
 const protectedArea=/(^|\/)devserver\.ts$|(^|\/)(auth|authentication|authorization|crypto|cryptography|encryption|tls|ssl|certificates?|security|secrets?|wisp|proxy|transport|network|sandbox|permissions?|sessions?|tokens?)(\/|\.|$)/i;
 const log=scrub((await fs.readFile(logPath,"utf8")).slice(-22000));
