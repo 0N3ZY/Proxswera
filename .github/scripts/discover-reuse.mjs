@@ -55,14 +55,15 @@ for (const item of selected) {
         try { licenceText += "\n" + execFileSync("git", ["-C", dir, "show", "HEAD:" + name], { encoding: "utf8", maxBuffer: 50000, timeout: 5000 }).slice(0, 12000); } catch {}
       }
       const text = licenceText.toLowerCase();
-      const detected = text.includes("gnu affero general public license") ? "agpl-3.0"
-        : text.includes("gnu general public license") && text.includes("version 3") ? "gpl-3.0"
-        : text.includes("apache license") && text.includes("version 2.0") ? "apache-2.0"
-        : text.includes("mozilla public license") && text.includes("2.0") ? "mpl-2.0"
-        : text.includes("permission is hereby granted, free of charge") ? "mit"
-        : text.includes("redistribution and use in source and binary forms") && text.includes("neither the name") ? "bsd-3-clause"
-        : text.includes("redistribution and use in source and binary forms") ? "bsd-2-clause"
-        : text.includes("isc license") ? "isc" : "unknown";
+      const detected = text.includes("gnu affero general public license") && /\\bversion\\s+3\\b/.test(text) ? "agpl-3.0"
+        : text.includes("gnu general public license") && /\\bversion\\s+3\\b/.test(text) ? "gpl-3.0"
+        : text.includes("apache license") && /\\bversion\\s+2\\.0\\b/.test(text) ? "apache-2.0"
+        : text.includes("mozilla public license") && /\\bversion\\s+2\\.0\\b/.test(text) ? "mpl-2.0"
+        : /\\bmit license\\b/.test(text) && text.includes("permission is hereby granted, free of charge") ? "mit"
+        : /\\bbsd 3-clause\\b/.test(text) ? "bsd-3-clause"
+        : /\\bbsd 2-clause\\b/.test(text) ? "bsd-2-clause"
+        : /\\bisc license\\b/.test(text) ? "isc"
+        : text.includes("this is free and unencumbered software released into the public domain") ? "unlicense" : "unknown";
       if (detected !== "unknown") record.license = detected;
       record.licenceApproved = allowedLicenses.has(record.license);
     }
