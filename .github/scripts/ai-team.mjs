@@ -69,6 +69,15 @@ for(const x of checks)console.error("Review "+x.id+": "+x.verdict+" "+scrub(JSON
 if(checks.some(x=>x.verdict!=="APPROVE")){console.error("No unanimous approval; no patch emitted.");process.exit(5);}
 const paths=[...patch.matchAll(/^diff --git a\/(.*?) b\/(.*?)$/gm)];
 if(!paths.length||paths.length>20)process.exit(6);
-for(const m of paths){const f=m[2];if(f.startsWith("/")||f.split("/").includes("..")||excluded.test(f)||secret.test(f)||protectedArea.test(f)||f.startsWith(".github/")){console.error("Prohibited path "+f);process.exit(7);}}
+if (/^(?:rename|copy) (?:from|to) |^(?:old|new) mode /m.test(patch)) {
+ console.error("Renames, copies, and file-mode changes are not accepted from AI patches."); process.exit(7);
+}
+for(const m of paths){
+ for(const f of [m[1],m[2]]){
+  if(f.startsWith("/")||f.split("/").includes("..")||excluded.test(f)||secret.test(f)||protectedArea.test(f)||f.startsWith(".github/")){
+   console.error("Prohibited path "+f);process.exit(7);
+  }
+ }
+}
 console.error("Team unanimously approved; deterministic verifier and Docker rebuild remain required.");
 process.stdout.write(patch+"\n");
