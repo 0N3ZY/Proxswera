@@ -44,7 +44,7 @@ jobs:
             sleep 2
           done
           curl --fail --show-error http://127.0.0.1:10000/healthz
-          curl --fail --show-error --output /dev/null http://127.0.0.1:10000/
+          node scripts/smoke-runtime.mjs
 
       - name: Print container logs on failure
         if: failure()
