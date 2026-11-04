@@ -25,6 +25,11 @@ for (const file of changed) {
   }
 }
 
+const summary = execFileSync("git", ["diff", "--summary", "--"], { encoding: "utf8" });
+if (/^(?:\\s*(?:rename|copy) (?:from|to) |\\s*mode change |\\s*(?:create|delete) mode 120000)/m.test(summary)) {
+  throw new Error("AI patches may not rename/copy files, change file modes, or create symlinks.");
+}
+
 const diff = execFileSync("git", ["diff", "--unified=0", "--"], { encoding: "utf8" });
 const additions = diff.split("\n").filter(line => line.startsWith("+") && !line.startsWith("+++")).join("\n");
 const secretPatterns = [
