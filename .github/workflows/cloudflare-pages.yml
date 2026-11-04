@@ -17,10 +17,10 @@ concurrency:
 jobs:
   deploy:
     name: Deploy static frontend
-    if: >-
-      ${{ github.event.workflow_run.conclusion == 'success' &&
-          secrets.CLOUDFLARE_API_TOKEN != '' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     steps:
       - name: Download built frontend
         uses: actions/download-artifact@v4
@@ -32,6 +32,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy to Cloudflare Pages
+        if: env.CLOUDFLARE_API_TOKEN != ''
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
