@@ -39,7 +39,8 @@ jobs:
         run: |
           set -euo pipefail
           SINCE="$(date -u -d '30 minutes ago' +%s)"
-          PR="$(gh pr list --repo "$GH_REPO" --base main --state open --json number,headRefName,createdAt --jq --arg since "$SINCE" '[.[] | select((.headRefName | startswith("upstream-sync/")) and ((.createdAt | fromdateiso8601) >= ($since | tonumber)))] | sort_by(.number) | last // empty')"
+          PR_LIST="$(gh pr list --repo "$GH_REPO" --base main --state open --json number,headRefName,createdAt)"
+          PR="$(printf '%s' "$PR_LIST" | jq --arg since "$SINCE" '[.[] | select((.headRefName | startswith("upstream-sync/")) and ((.createdAt | fromdateiso8601) >= ($since | tonumber)))] | sort_by(.number) | last // empty')"
           if [ -z "$PR" ]; then
             echo "found=false" >> "$GITHUB_OUTPUT"
             exit 0
