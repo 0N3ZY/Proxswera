@@ -1,9 +1,10 @@
 import fs from "node:fs/promises";
 import {execFileSync} from "node:child_process";
 const logPath=process.argv[2]; if(!logPath) throw Error("Pass build log path");
-const scrub=s=>s.replace(/-----BEGIN ([A-Z ]*PRIVATE KEY)-----[\\s\\S]*?-----END \\1-----/g,"[redacted private key]").replace(/(Bearer\\s+)[A-Za-z0-9._~+\\/-]+=*/gi,"$1[redacted]").replace(/([?&](?:key|api_key|token|access_token)=)[^&\\s]+/gi,"$1[redacted]").replace(/((?:api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret|password)\\s*[:=]\\s*["\\x27]?)[^\\s"\\x27&,;]+/gi,"$1[redacted]").replace(/\\b(?:gsk_|AIza|sk-or-v1-|gh[pousr]_)[A-Za-z0-9_-]{20,}\\b/g,"[redacted]");
+const scrub=s=>s.replace(/-----BEGIN ([A-Z ]*PRIVATE KEY)-----[\s\S]*?-----END \1-----/g,"[redacted private key]").replace(/(Bearer\s+)[A-Za-z0-9._~+\/-]+=*/gi,"$1[redacted]").replace(/([?&](?:key|api_key|token|access_token)=)[^&\s]+/gi,"$1[redacted]").replace(/((?:api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret|password)\s*[:=]\s*["']?)[^\s"'&,;]+/gi,"$1[redacted]").replace(/\b(?:gsk_|AIza|sk-or-v1-|gh[pousr]_)[A-Za-z0-9_-]{20,}\b/g,"[redacted]");
 const excluded=/(^|\/)(node_modules|vendor|dist|build|coverage)(\/|$)|(^|\/)(pnpm-lock\.yaml|package-lock\.json|yarn\.lock|Cargo\.lock)$/i;
 const secret=/(^|\/)(\.env[^/]*|secrets?|credentials?|.*\.(pem|p12|pfx))$/i;
+const protectedArea=/(^|\/)(auth|authentication|authorization|crypto|cryptography|encryption|tls|ssl|certificates?|security|secrets?|wisp|proxy|transport|network|sandbox|permissions?|sessions?|tokens?)(\/|\.|$)/i;
 const log=scrub((await fs.readFile(logPath,"utf8")).slice(-22000));
 let budget=65000, files=[];
 for(const f of execFileSync("git",["ls-files","-z"],{encoding:"utf8"}).split("\0").filter(Boolean)){
