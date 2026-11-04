@@ -79,6 +79,6 @@ jobs:
             --head "$BRANCH" \
             --base main \
             --title "Upstream sync: MercuryWorkshop/scramjet ${UPSTREAM_SHA:0:12}" \
-            --body "Automated merge of `MercuryWorkshop/scramjet` main at `$UPSTREAM_SHA`.
+            --body "Automated merge of MercuryWorkshop/scramjet main at $UPSTREAM_SHA.
 
           This PR is intentionally not auto-merged. CI, runtime checks, and the AI review/optimisation process must complete before a human approves it."
