@@ -80,11 +80,70 @@ jobs:
           git add -N -- .
           git diff --check
           node .github/scripts/verify-ai-patch.mjs
+
+      - name: Build repaired production image
+        id: repaired_build
+        if: steps.verify.outcome == 'success'
+        run: |
+          set -o pipefail
           docker build --progress=plain -t scramjetfork-repaired . 2>&1 | tee repaired-build.log
+
+      - name: Smoke-test repaired production image
+        id: smoke
+        if: steps.repaired_build.outcome == 'success'
+        run: |
+          set -euo pipefail
+          docker run -d --name scramjetfork-repaired -e NODE_ENV=production -e PORT=10000 -p 10000:10000 scramjetfork-repaired
+          cleanup() { docker rm -f scramjetfork-repaired >/dev/null 2>&1 || true; }
+          trap cleanup EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:10000/healthz | grep -q '^ok
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then
+            echo "AI patch produced no repository changes."
+            exit 1
+          fi
+
+          BRANCH="ai-repair/${GITHUB_RUN_ID}"
+          git config user.name "scramjet-ai-maintenance"
+          git config user.email "scramjet-ai-maintenance@users.noreply.github.com"
+          git switch -c "$BRANCH"
+          git add -A
+          git commit -m "AI repair: resolve verified production build failure"
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --repo "$GH_REPO" \
+            --head "$BRANCH" \
+            --base main \
+            --title "AI repair: verified build fix" \
+            --body "The AI maintenance workflow proposed a repair after a failed production build or health check. The patch passed path, secret-leak, security-downgrade, whitespace, full production Docker-build, and runtime smoke checks. Application and protected-area changes require human review; no security-sensitive code is auto-merged."
+
+          if git diff-tree --no-commit-id --name-only -r HEAD | grep -Ev '(^README\.md$|^docs/.*\.md$|\.md$|\.css$)' >/dev/null; then
+            echo "Changes include application code; human approval is required."
+          else
+            echo "Documentation or CSS-only patch; enabling auto-merge after required checks."
+            gh pr merge "$BRANCH" --repo "$GH_REPO" --auto --squash
+          fi
+
+      - name: Report missing AI secrets
+        if: (steps.build.outcome == 'failure' || steps.health.outcome == 'failure') && steps.ai.outcome == 'failure'
+        run: |
+          echo "::warning::Build failed and the AI team could not complete. Add provider keys as GitHub Actions repository secrets (not only Render environment variables); at least three distinct providers are required; Cloudflare also needs its Account ID."
+; then break; fi
+            sleep 2
+          done
+          curl --fail --show-error http://127.0.0.1:10000/healthz
+          docker exec --user root scramjetfork-repaired ln -s /etc/passwd /app/packages/demo/dist/__outside.txt
+          node scripts/smoke-runtime.mjs
 
       - name: Create repair pull request
         id: pr
-        if: (steps.build.outcome == 'failure' || steps.health.outcome == 'failure') && steps.verify.outcome == 'success'
+        if: steps.smoke.outcome == 'success'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
