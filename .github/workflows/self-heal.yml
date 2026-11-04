@@ -1,41 +1,96 @@
-name: AI Self-Healing Loop
+name: AI Self-Healing Maintenance
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: scramjet-ai-maintenance
+  cancel-in-progress: false
 
 jobs:
-  diagnose-and-heal:
+  build-and-repair:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
+    timeout-minutes: 45
     steps:
-      - name: Checkout Code
+      - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "24"
 
-      - name: Install Dependencies & Run Build Check
-        id: test_build
+      - name: Build production image
+        id: build
         continue-on-error: true
         run: |
-          corepack enable && corepack prepare pnpm@9.0.0 --activate
-          
-          # Install root dependencies including AI SDKs safely
-          npm install --legacy-peer-deps
-          
-          pnpm dev || pnpm build || exit 1
+          set -o pipefail
+          docker build --progress=plain -t scramjetfork-ci . 2>&1 | tee build.log
 
-      - name: Commit and Push AI Patches
-        if: steps.test_build.outcome == 'failure'
+      - name: Ask AI for a minimal repair
+        id: ai
+        if: steps.build.outcome == 'failure'
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_MODEL: llama-3.3-70b-versatile
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-2.5-flash
         run: |
-          git config --global user.name "Scramjet-AI-Agent"
-          git config --global user.email "ai-agent@system.local"
-          git add .
-          git commit -m "🤖 AI Auto-Patch: Resolved build/runtime errors" || echo "No changes to commit"
-          git push
+          node .github/scripts/ai-repair.mjs build.log > repair.patch
+
+      - name: Apply and verify AI patch
+        id: verify
+        if: steps.build.outcome == 'failure' && steps.ai.outcome == 'success'
+        run: |
+          git apply --check repair.patch
+          git apply repair.patch
+          git diff --check
+          docker build --progress=plain -t scramjetfork-repaired . 2>&1 | tee repaired-build.log
+
+      - name: Create repair pull request
+        id: pr
+        if: steps.build.outcome == 'failure' && steps.verify.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then
+            echo "AI patch produced no repository changes."
+            exit 1
+          fi
+
+          BRANCH="ai-repair/${GITHUB_RUN_ID}"
+          git config user.name "scramjet-ai-maintenance"
+          git config user.email "scramjet-ai-maintenance@users.noreply.github.com"
+          git switch -c "$BRANCH"
+          git add -A
+          git commit -m "AI repair: resolve verified production build failure"
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --repo "$GH_REPO" \
+            --head "$BRANCH" \
+            --base main \
+            --title "AI repair: verified build fix" \
+            --body "The AI maintenance workflow proposed a minimal patch after a failed production image build. The patch was applied and the complete Docker build passed. Review the diff before merging."
+
+          if git diff-tree --no-commit-id --name-only -r HEAD | grep -Ev '(^README\.md$|^docs/.*\.md$|\.md$)' >/dev/null; then
+            echo "Changes are not documentation-only; human approval is required."
+          else
+            echo "Documentation-only patch; enabling auto-merge after required checks."
+            gh pr merge "$BRANCH" --repo "$GH_REPO" --auto --squash
+          fi
+
+      - name: Report missing AI secrets
+        if: steps.build.outcome == 'failure' && steps.ai.outcome == 'failure'
+        run: |
+          echo "::warning::Build failed and AI repair could not run. Configure GROQ_API_KEY and/or GEMINI_API_KEY as GitHub Actions repository secrets."
