@@ -1,7 +1,19 @@
 import fs from "node:fs/promises";
 import {execFileSync} from "node:child_process";
 const logPath=process.argv[2]; if(!logPath) throw Error("Pass build log path");
-const scrub=s=>s.replace(/-----BEGIN ([A-Z ]*PRIVATE KEY)-----[\s\S]*?-----END \1-----/g,"[redacted private key]").replace(/(Bearer\s+)[A-Za-z0-9._~+\/-]+=*/gi,"$1[redacted]").replace(/([?&](?:key|api_key|token|access_token)=)[^&\s]+/gi,"$1[redacted]").replace(/((?:api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret|password)\s*[:=]\s*["']?)[^\s"'&,;]+/gi,"$1[redacted]").replace(/\b(?:gsk_|AIza|sk-or-v1-|gh[pousr]_)[A-Za-z0-9_-]{20,}\b/g,"[redacted]");
+const configuredSecrets = Object.entries(process.env)
+  .filter(([name, value]) => /(?:API[_-]?KEY|API[_-]?TOKEN|ACCESS[_-]?TOKEN|AUTH[_-]?TOKEN|CLIENT[_-]?SECRET|PASSWORD|PRIVATE[_-]?KEY)/i.test(name) && typeof value === "string" && value.length >= 8)
+  .map(([, value]) => value);
+const scrub = value => {
+  let result = value
+    .replace(/-----BEGIN ([A-Z ]*PRIVATE KEY)-----[\s\S]*?-----END \1-----/g, "[redacted private key]")
+    .replace(/(Bearer\s+)[A-Za-z0-9._~+\/-]+=*/gi, "$1[redacted]")
+    .replace(/([?&](?:key|api[_-]?key|token|access[_-]?token|auth[_-]?token)=)[^&\s]+/gi, "$1[redacted]")
+    .replace(/((?:[A-Z0-9_]*API[_-]?(?:KEY|TOKEN)|ACCESS[_-]?TOKEN|AUTH[_-]?TOKEN|CLIENT[_-]?SECRET|PASSWORD|PRIVATE[_-]?KEY)\s*[:=]\s*["']?)[^\s"'&,;]+/gi, "$1[redacted]")
+    .replace(/\b(?:gsk_|AIza|sk-or-v1-|gh[pousr]_)[A-Za-z0-9_-]{20,}\b/g, "[redacted]");
+  for (const secret of configuredSecrets) result = result.split(secret).join("[redacted configured secret]");
+  return result;
+};
 const excluded=/(^|\/)(node_modules|vendor|dist|build|coverage)(\/|$)|(^|\/)(pnpm-lock\.yaml|package-lock\.json|yarn\.lock|Cargo\.lock)$/i;
 const secret=/(^|\/)(\.env[^/]*|secrets?|credentials?|.*\.(pem|p12|pfx))$/i;
 const protectedArea=/(^|\/)(auth|authentication|authorization|crypto|cryptography|encryption|tls|ssl|certificates?|security|secrets?|wisp|proxy|transport|network|sandbox|permissions?|sessions?|tokens?)(\/|\.|$)/i;
