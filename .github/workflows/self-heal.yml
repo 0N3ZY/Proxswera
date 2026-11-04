@@ -84,9 +84,9 @@ jobs:
             --body "The AI maintenance workflow proposed a minimal patch after a failed production image build. The patch was applied and the complete Docker build passed. Review the diff before merging."
 
           if git diff-tree --no-commit-id --name-only -r HEAD | grep -Ev '(^README\.md$|^docs/.*\.md$|\.md$)' >/dev/null; then
-            echo "Changes are not documentation-only; human approval is required."
+            echo "Changes include application code; human approval is required."
           else
-            echo "Documentation-only patch; enabling auto-merge after required checks."
+            echo "Documentation or CSS-only patch; enabling auto-merge after required checks."
             gh pr merge "$BRANCH" --repo "$GH_REPO" --auto --squash
           fi
 
