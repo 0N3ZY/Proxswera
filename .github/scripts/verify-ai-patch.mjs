@@ -15,6 +15,16 @@ for (const file of changed) {
 
 const diff = execFileSync("git", ["diff", "--unified=0", "--"], { encoding: "utf8" });
 const additions = diff.split("\n").filter(line => line.startsWith("+") && !line.startsWith("+++")).join("\n");
+const secretPatterns = [
+  /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/,
+  /\bAKIA[0-9A-Z]{16}\b/,
+  /\bgh[pousr]_[A-Za-z0-9_]{30,}\b/,
+  /\bAIza[0-9A-Za-z_-]{30,}\b/,
+  /\bgsk_[A-Za-z0-9]{20,}\b/,
+  /\bsk-[A-Za-z0-9_-]{24,}\b/,
+];
+for (const pattern of secretPatterns) if (pattern.test(additions)) throw new Error(`Possible credential or private key added: ${pattern}`);
+
 const dangerous = [
   /NODE_TLS_REJECT_UNAUTHORIZED\s*=\s*["']?0/i,
   /rejectUnauthorized\s*:\s*false/i,
