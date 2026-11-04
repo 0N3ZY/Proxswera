@@ -20,7 +20,7 @@ const agents=[
 {id:"cloudflare",key:process.env.CLOUDFLARE_API_TOKEN,account:process.env.CLOUDFLARE_ACCOUNT_ID,model:process.env.CLOUDFLARE_MODEL||"@cf/zai-org/glm-4.7-flash",url:"https://api.cloudflare.com/client/v4/accounts/"+encodeURIComponent(process.env.CLOUDFLARE_ACCOUNT_ID||"")+"/ai/v1/chat/completions"}
 ].filter(a=>a.key&&(a.id!=="cloudflare"||a.account));
 async function ask(a,prompt,temp=0.1){
- const c=new AbortController(),t=setTimeout(()=>c.abort(),35000);
+ const c=new AbortController(),t=setTimeout(()=>c.abort(),90000);
  try{
  let url,headers,body;
  if(a.kind==="gemini"){url="https://generativelanguage.googleapis.com/v1beta/models/"+a.model+":generateContent?key="+encodeURIComponent(a.key);headers={"Content-Type":"application/json"};body={contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:{temperature:temp,maxOutputTokens:10000}};}
@@ -30,7 +30,7 @@ async function ask(a,prompt,temp=0.1){
  }finally{clearTimeout(t);}
 }
 function json(s){const t=s.trim().replace(/^\`\`\`(?:json)?\s*/i,"").replace(/\s*\`\`\`$/,""),i=t.indexOf("{"),j=t.lastIndexOf("}");if(i<0||j<=i)throw Error("Invalid JSON");return JSON.parse(t.slice(i,j+1));}
-if(agents.length<2){console.error("Need at least two configured AI providers; safe stop.");process.exit(1);}
+if(agents.length<3){console.error("Need at least three configured AI providers for distinct patch-author, security-reviewer, and independent-reviewer roles; safe stop.");process.exit(1);}
 const roster=agents.map(a=>a.id+" / "+a.model).join("\n");
 let plan;try{plan=json(await ask(agents[0],"You coordinate this AI team. Assign exactly one patch_author, one security_reviewer, and one independent_reviewer to different providers. Assign remaining providers diagnostician or test_advisor. Use every provider once. Choose roles based on model capabilities and task context. Return JSON {assignments:{id:role},reasoning:string}.\nTASK:\n"+task+"\nMODELS:\n"+roster+"\nGUARD:\n"+guard));}catch(e){console.error("Role planning failed: "+e.message);process.exit(1);}
 const roles=["patch_author","security_reviewer","independent_reviewer","diagnostician","test_advisor"],map=plan.assignments||{};
