@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx devserver.ts",
-    "start": "tsx devserver.ts"
+    "start": "tsx devserver.ts",
+    "test:package": "ava tests/ci/packageValidation.js"
   },
   "engines": {
     "node": ">=22.18.0"
