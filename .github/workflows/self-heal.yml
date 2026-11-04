@@ -65,6 +65,7 @@ jobs:
           git apply --check repair.patch
           git apply repair.patch
           git diff --check
+          node .github/scripts/verify-ai-patch.mjs
           docker build --progress=plain -t scramjetfork-repaired . 2>&1 | tee repaired-build.log
 
       - name: Create repair pull request
@@ -93,7 +94,7 @@ jobs:
             --head "$BRANCH" \
             --base main \
             --title "AI repair: verified build fix" \
-            --body "The AI maintenance workflow proposed a minimal patch after a failed production image build. The patch was applied and the complete Docker build passed. Review the diff before merging."
+            --body "The AI maintenance workflow proposed a repair after a failed production build or health check. The patch passed path, secret-leak, security-downgrade, whitespace, and full production Docker-build checks. Application and protected-area changes require human review; no security-sensitive code is auto-merged."
 
           if git diff-tree --no-commit-id --name-only -r HEAD | grep -Ev '(^README\.md$|^docs/.*\.md$|\.md$|\.css$)' >/dev/null; then
             echo "Changes include application code; human approval is required."
