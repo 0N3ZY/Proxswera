@@ -9,9 +9,11 @@ if (!logPath) {
 }
 
 const scrub = (value) => value
-  .replace(/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----[\\s\\S]*?-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g, "[REDACTED PRIVATE KEY]")
-  .replace(/(Bearer\\s+)[A-Za-z0-9._~+\\/-]+=*/gi, "$1[REDACTED]")
-  .replace(/\\b(?:GROQ_API_KEY|GEMINI_API_KEY|OPENAI_API_KEY|API_KEY|ACCESS_TOKEN|AUTH_TOKEN|PASSWORD|CLIENT_SECRET)\\s*[:=]\\s*[^\\s,;]+/gi, "const log = (await fs.readFile(logPath, "utf8")).slice(-32000);".replace(/[:=].*$/, "=[REDACTED]"))
+  .replace(/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g, "[REDACTED PRIVATE KEY]")
+  .replace(/(Bearer\s+)[A-Za-z0-9._~+\/-]+=*/gi, "$1[REDACTED]")
+  .replace(/\b(?:GROQ_API_KEY|GEMINI_API_KEY|OPENAI_API_KEY|API_KEY|ACCESS_TOKEN|AUTH_TOKEN|PASSWORD|CLIENT_SECRET)\s*[:=]\s*[^\s,;]+/gi, (match) => match.replace(/[:=].*$/, "=[REDACTED]"))
+  .replace(/\b(?:gsk_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{30,}|gh[pousr]_[A-Za-z0-9_]{30,}|AKIA[0-9A-Z]{16})\b/g, "[REDACTED CREDENTIAL]");
+const log = (await fs.readFile(logPath, "utf8")).slice(-32000);".replace(/[:=].*$/, "=[REDACTED]"))
   .replace(/\\b(?:gsk_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{30,}|gh[pousr]_[A-Za-z0-9_]{30,}|AKIA[0-9A-Z]{16})\\b/g, "[REDACTED CREDENTIAL]");
 const log = scrub((await fs.readFile(logPath, "utf8")).slice(-32000));
 const tracked = execFileSync("git", ["ls-files", "-z"], { encoding: "utf8" }).split("\0").filter(Boolean);
