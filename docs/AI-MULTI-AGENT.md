@@ -4,16 +4,16 @@ The scheduled/manual GitHub Actions maintenance workflow uses a multi-provider t
 
 ## GitHub Actions secrets
 
-Add these under **Repository Settings → Secrets and variables → Actions → New repository secret**. These are separate from Render service environment variables because the AI maintenance job runs on GitHub Actions.
+Add these under **Repository Settings → Secrets and variables → Actions → New repository secret**. These are separate from Render service environment variables because the AI maintenance job runs on GitHub Actions. The workflows also accept the former `OPENROUTER_API_KEY`, `CLOUDFLARE_API_TOKEN`, and `CLOUDFLARE_ACCOUNT_ID` names as fallbacks while migrating.\n\nCloudflare Pages deployment uses a separate GitHub Actions secret: `CFP_API_KEY`. It is not the Workers AI token and should remain scoped to Cloudflare Pages deployment permissions.
 
 | Secret | Purpose |
 |---|---|
-| `GEMINI_API_KEY` | Gemini diagnosis/review |
+| `GEMINI_API_KEY` | Gemini 3.8 Flash diagnosis/review |
 | `GROQ_API_KEY` | Groq diagnosis/review |
-| `OPENROUTER_API_KEY` | OpenRouter free-model routing |
+| `OR_API_KEY` | OpenRouter free-model routing |
 | `MISTRAL_API_KEY` | Mistral API |
-| `CLOUDFLARE_API_TOKEN` | Workers AI API token |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account identifier |
+| `CF_API_KEY` | Cloudflare Workers AI API token |
+| `CF_ACCOUNT_ID` | Cloudflare account identifier used by Workers AI |
 
 Never commit these values or paste them into issues, logs, or prompts.
 
@@ -21,7 +21,7 @@ Never commit these values or paste them into issues, logs, or prompts.
 
 All defaults are intended for free-tier use and can be changed with GitHub Actions environment variables:
 
-- Gemini: `gemini-2.5-flash`
+- Gemini: `gemini-3.8-flash`
 - Groq: `llama-3.3-70b-versatile`
 - OpenRouter: `openrouter/free` (routes to an available free model)
 - Mistral: `mistral-small-latest` (only where the account has free Experiment-tier access)
