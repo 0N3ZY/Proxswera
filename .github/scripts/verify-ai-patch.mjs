@@ -39,6 +39,6 @@ const sensitive = changed.filter(file => protectedArea.test(file));
 const testsChanged = changed.some(file => /(^|\/)(__tests__|tests?|spec)(\/|\.)|\.(test|spec)\.[cm]?[jt]sx?$/.test(file));
 if (sensitive.length) throw new Error(`AI patches may not modify security-sensitive paths; human intervention is required: ${sensitive.join(", ")}`);
 const output = process.env.GITHUB_OUTPUT;
-if (output) fs.appendFileSync(output, \`protected_area_changed=false\nchanged_files=\${changed.length}\n\`);
+if (output) fs.appendFileSync(output, `protected_area_changed=false\nchanged_files=${changed.length}\n`);
 console.log(`Patch safety checks passed for ${changed.length} changed files.`);
 
