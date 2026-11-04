@@ -23,7 +23,7 @@ const scrub = (value) => {
 };const log = scrub((await fs.readFile(logPath, "utf8")).slice(-32000));
 const tracked = execFileSync("git", ["ls-files", "-z"], { encoding: "utf8" }).split("\0").filter(Boolean);
 const excluded = /(^|\/)(node_modules|vendor|third_party|dist|build|coverage|\.next|\.turbo)(\/|$)|(^|\/)(pnpm-lock\.yaml|package-lock\.json|yarn\.lock|npm-shrinkwrap\.json|Cargo\.lock)$|(^|\/)\.github\/workflows\//i;
-const secretPath = /(^|\/)(\.env[^/]*|\.npmrc|\.netrc|\.pypirc|\.git-credentials|\.docker\/config\.json|secrets?(\.[^/]*)?|credentials?(\.[^/]*)?|id_(?:rsa|ed25519|ecdsa)|.*\.(?:pem|p12|pfx|key|jks|keystore|p8))$/i;
+const secretPath = /(^|\/)(\.env[^/]*|\.npmrc|\.netrc|\.pypirc|\.git-credentials|\.docker\/config\.json|secrets?(\.[^/]*)?|credentials?(\.[^/]*)?|id_(?:rsa|ed25519|ecdsa)|.*\.(?:pem|p12|pfx|key|jks|keystore|p8|der))$/i;
 const secretDir = /(^|\/)(\.ssh|\.aws|\.kube)(\/|$)/i;
 const protectedArea = /(^|\/)devserver\.ts$|(^|\/)(auth|authentication|authorization|crypto|cryptography|encryption|tls|ssl|certificates?|security|secrets?|wisp|proxy|transport|network|sandbox|permissions?|sessions?|tokens?)(\/|\.|$)/i;
 const textFiles = [];
