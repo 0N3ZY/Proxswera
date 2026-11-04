@@ -57,8 +57,8 @@ jobs:
           set -euo pipefail
           git fetch origin "$UPSTREAM_BRANCH:refs/remotes/origin/$UPSTREAM_BRANCH"
           git worktree add candidate "origin/$UPSTREAM_BRANCH"
-          git diff --no-ext-diff --binary origin/main..."origin/$UPSTREAM_BRANCH" > candidate/upstream.diff
-          if [ ! -s candidate/upstream.diff ]; then
+          git diff --no-ext-diff --binary origin/main..."origin/$UPSTREAM_BRANCH" > /tmp/upstream.diff
+          if [ ! -s /tmp/upstream.diff ]; then
             echo "Upstream sync has no diff to review."
             exit 1
           fi
@@ -82,7 +82,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_MODEL: "@cf/zai-org/glm-4.7-flash"
         run: |
-          node ../.github/scripts/ai-team.mjs upstream.diff > optimise.patch
+          node ../.github/scripts/ai-team.mjs /tmp/upstream.diff > /tmp/optimise.patch
 
       - name: Apply and deterministically verify optimisation
         id: verify
