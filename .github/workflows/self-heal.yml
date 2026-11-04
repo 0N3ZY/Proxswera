@@ -114,4 +114,4 @@ jobs:
       - name: Report missing AI secrets
         if: (steps.build.outcome == 'failure' || steps.health.outcome == 'failure') && steps.ai.outcome == 'failure'
         run: |
-          echo "::warning::Build failed and AI repair could not run. Configure GROQ_API_KEY and/or GEMINI_API_KEY as GitHub Actions repository secrets."
+          echo "::warning::Build failed and the AI team could not complete. Add provider keys as GitHub Actions repository secrets (not only Render environment variables); at least two providers, including Cloudflare Account ID with its token, are required."
