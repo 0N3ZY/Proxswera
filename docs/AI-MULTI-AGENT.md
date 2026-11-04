@@ -1,6 +1,6 @@
 # Collaborative AI maintenance team
 
-The scheduled/manual GitHub Actions maintenance workflow uses a multi-provider team. It only calls providers after the production image build or Render health check fails.
+The scheduled/manual self-heal workflow uses the multi-provider team after a production image build or Render health check fails. A separate upstream-optimisation workflow invokes the team after a successful upstream sync to look for evidence-backed improvements.
 
 ## GitHub Actions secrets
 
