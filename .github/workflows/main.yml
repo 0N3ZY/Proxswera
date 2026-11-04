@@ -276,7 +276,7 @@ jobs:
         working-directory: packages/core
 
       - name: Run package validation tests
-        run: node scripts/validate-package.mjs
+        run: pnpm test:package
 
   tests:
     name: Run Scramjet Tests
