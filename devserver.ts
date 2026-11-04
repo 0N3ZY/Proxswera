@@ -69,7 +69,7 @@ async function startProductionServer() {
     try {
       pathname = decodeURIComponent(new URL(req.url ?? "/", "http://localhost").pathname);
     } catch {
-      res.writeHead(400).end("Bad request");
+      res.writeHead(400).end(req.method === "HEAD" ? undefined : "Bad request");
       return;
     }
 
@@ -77,14 +77,15 @@ async function startProductionServer() {
       res.writeHead(200, {
         "Content-Type": "text/plain; charset=utf-8",
         "Cache-Control": "no-store",
+        "Content-Length": "2",
       });
-      res.end("ok");
+      res.end(req.method === "HEAD" ? undefined : "ok");
       return;
     }
 
     let filePath = path.resolve(distDir, `.${pathname}`);
     if (filePath !== distDir && !filePath.startsWith(distDir + path.sep)) {
-      res.writeHead(403).end("Forbidden");
+      res.writeHead(403).end(req.method === "HEAD" ? undefined : "Forbidden");
       return;
     }
 
@@ -109,7 +110,7 @@ async function startProductionServer() {
         filePath = indexFile;
         fileInfo = await stat(indexFile);
       } else {
-        res.writeHead(404).end("Not found");
+        res.writeHead(404).end(req.method === "HEAD" ? undefined : "Not found");
         return;
       }
     }
