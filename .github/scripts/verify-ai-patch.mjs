@@ -5,7 +5,7 @@ import path from "node:path";
 const changed = execFileSync("git", ["diff", "--name-only", "-z"], { encoding: "utf8" }).split("\0").filter(Boolean);
 if (!changed.length) throw new Error("AI patch did not change any tracked files.");
 
-const prohibited = /(^|\/)\.github\/workflows\/|(^|\/)(\.env[^/]*|secrets?(\.[^/]*)?|credentials?(\.[^/]*)?|id_rsa|id_ed25519|.*\.(pem|p12|pfx))$/i;
+const prohibited = /(^|\/)\.github\/|(^|\/)(\.env[^/]*|secrets?(\.[^/]*)?|credentials?(\.[^/]*)?|id_rsa|id_ed25519|.*\.(pem|p12|pfx))$/i;
 const protectedArea = /(^|\/)(auth|authentication|authorization|crypto|cryptography|encryption|tls|ssl|certificates?|security|secrets?|wisp|proxy|transport|network|sandbox|permissions?|sessions?|tokens?)(\/|\.|$)/i;
 for (const file of changed) {
   if (prohibited.test(file) || /(^|\/)(pnpm-lock\.yaml|package-lock\.json|yarn\.lock|npm-shrinkwrap\.json|Cargo\.lock)$/.test(file)) {
