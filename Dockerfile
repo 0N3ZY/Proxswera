@@ -38,6 +38,7 @@ ENV PORT=10000
 RUN corepack enable && corepack prepare pnpm@10.12.1 --activate
 COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY --from=build /app/patches/htmlparser2@12.0.0.patch ./patches/htmlparser2@12.0.0.patch
 COPY --from=build /app/packages/core/package.json ./packages/core/package.json
 COPY --from=build /app/packages/runway/package.json ./packages/runway/package.json
 COPY --from=build /app/packages/rpc/package.json ./packages/rpc/package.json
