@@ -64,6 +64,7 @@ jobs:
         run: |
           git apply --check repair.patch
           git apply repair.patch
+          git add -N -- .
           git diff --check
           node .github/scripts/verify-ai-patch.mjs
           docker build --progress=plain -t scramjetfork-repaired . 2>&1 | tee repaired-build.log
