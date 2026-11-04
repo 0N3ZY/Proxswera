@@ -62,7 +62,7 @@ async function askGroq() {
   const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile", temperature: 0.1, messages: [{ role: "user", content: prompt }] }),
+    body: JSON.stringify({ model: process.env.GROQ_MODEL || "openai/gpt-oss-120b", temperature: 0.1, messages: [{ role: "user", content: prompt }] }),
   });
   if (!response.ok) throw new Error(`Groq HTTP ${response.status}: ${scrub((await response.text()).slice(0, 1000))}`);
   return (await response.json()).choices?.[0]?.message?.content ?? "";
