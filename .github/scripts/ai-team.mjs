@@ -46,7 +46,7 @@ const agents=[
 {id:"groq",key:process.env.GROQ_API_KEY,model:process.env.GROQ_MODEL||"llama-3.3-70b-versatile",url:"https://api.groq.com/openai/v1/chat/completions"},
 {id:"openrouter",key:process.env.OR_API_KEY||process.env.OPENROUTER_API_KEY,model:process.env.OPENROUTER_MODEL||"openrouter/free",url:"https://openrouter.ai/api/v1/chat/completions"},
 {id:"mistral",key:process.env.MISTRAL_API_KEY,model:process.env.MISTRAL_MODEL||"mistral-small-latest",url:"https://api.mistral.ai/v1/chat/completions"},
-{id:"cloudflare",key:process.env.CF_API_KEY||process.env.CLOUDFLARE_API_TOKEN,account:process.env.CF_ACCOUNT_ID||process.env.CLOUDFLARE_ACCOUNT_ID,model:process.env.CLOUDFLARE_MODEL||"@cf/zai-org/glm-4.7-flash",url:"https://api.cloudflare.com/client/v4/accounts/"+encodeURIComponent(process.env.CLOUDFLARE_ACCOUNT_ID||"")+"/ai/v1/chat/completions"}
+{id:"cloudflare",key:process.env.CF_API_KEY||process.env.CLOUDFLARE_API_TOKEN,account:process.env.CF_ACCOUNT_ID||process.env.CLOUDFLARE_ACCOUNT_ID,model:process.env.CLOUDFLARE_MODEL||"@cf/zai-org/glm-4.7-flash",url:"https://api.cloudflare.com/client/v4/accounts/"+encodeURIComponent(process.env.CF_ACCOUNT_ID||process.env.CLOUDFLARE_ACCOUNT_ID||"")+"/ai/v1/chat/completions"}
 ].filter(a=>a.key&&(a.id!=="cloudflare"||a.account));
 async function ask(a,prompt,temp=0.1){
  const c=new AbortController(),t=setTimeout(()=>c.abort(),90000);
