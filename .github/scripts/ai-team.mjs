@@ -10,7 +10,7 @@ const scrub = value => {
     .replace(/(Bearer\s+)[A-Za-z0-9._~+\/-]+=*/gi, "$1[redacted]")
     .replace(/([?&](?:key|api[_-]?key|token|access[_-]?token|auth[_-]?token)=)[^&\s]+/gi, "$1[redacted]")
     .replace(/((?:[A-Z0-9_]*API[_-]?(?:KEY|TOKEN)|ACCESS[_-]?TOKEN|AUTH[_-]?TOKEN|CLIENT[_-]?SECRET|PASSWORD|PRIVATE[_-]?KEY)\s*[:=]\s*["']?)[^\s"'&,;]+/gi, "$1[redacted]")
-    .replace(/\b(?:gsk_|AIza|sk-or-v1-|gh[pousr]_)[A-Za-z0-9_-]{20,}\b/g, "[redacted]");
+    .replace(/\b(?:gsk_|AIza|sk-or-v1-|sk-|gh[pousr]_)[A-Za-z0-9_-]{20,}\b/g, "[redacted]");
   for (const secret of configuredSecrets) result = result.split(secret).join("[redacted configured secret]");
   return result;
 };
