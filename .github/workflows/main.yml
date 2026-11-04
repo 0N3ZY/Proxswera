@@ -544,3 +544,18 @@ jobs:
       - name: Deploy to github
         id: deployment
         uses: actions/deploy-pages@v4
+  validate-workflows:
+    name: Validate GitHub Actions workflows
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+          cache: false
+      - name: Run actionlint
+        run: go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7
