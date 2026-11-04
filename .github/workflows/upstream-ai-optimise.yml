@@ -97,8 +97,8 @@ jobs:
         working-directory: candidate
         run: |
           set -euo pipefail
-          git apply --check optimise.patch
-          git apply optimise.patch
+          git apply --check /tmp/optimise.patch
+          git apply /tmp/optimise.patch
           git add -N -- .
           git diff --check
           node ../.github/scripts/verify-ai-patch.mjs
