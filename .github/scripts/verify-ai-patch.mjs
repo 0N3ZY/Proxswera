@@ -6,7 +6,7 @@ const changed = execFileSync("git", ["diff", "--name-only", "-z"], { encoding: "
 if (!changed.length) throw new Error("AI patch did not change any tracked files.");
 
 const prohibited = /(^|\/)\.github\/|(^|\/)(\.env[^/]*|secrets?(\.[^/]*)?|credentials?(\.[^/]*)?|id_rsa|id_ed25519|.*\.(pem|p12|pfx))$/i;
-const protectedArea = /(^|\/)(auth|authentication|authorization|crypto|cryptography|encryption|tls|ssl|certificates?|security|secrets?|wisp|proxy|transport|network|sandbox|permissions?|sessions?|tokens?)(\/|\.|$)/i;
+const protectedArea = /(^|\/)devserver\.ts$|(^|\/)(auth|authentication|authorization|crypto|cryptography|encryption|tls|ssl|certificates?|security|secrets?|wisp|proxy|transport|network|sandbox|permissions?|sessions?|tokens?)(\/|\.|$)/i;
 for (const file of changed) {
   if (prohibited.test(file) || /(^|\/)(pnpm-lock\.yaml|package-lock\.json|yarn\.lock|npm-shrinkwrap\.json|Cargo\.lock)$/.test(file)) {
     throw new Error(`Protected infrastructure/secret/lockfile path changed: ${file}`);
@@ -56,7 +56,12 @@ const dangerous = [
 for (const pattern of dangerous) if (pattern.test(additions)) throw new Error(`Potential security downgrade detected: ${pattern}`);
 
 const sensitive = changed.filter(file => protectedArea.test(file));
-const testsChanged = changed.some(file => /(^|\/)(__tests__|tests?|spec)(\/|\.)|\.(test|spec)\.[cm]?[jt]sx?$/.test(file));
+const isTestFile = file => /(^|\/)(__tests__|tests?|spec)(\/|\.)|\.(test|spec)\.[cm]?[jt]sx?$/.test(file) || file === "scripts/smoke-runtime.mjs";
+const testsChanged = changed.some(isTestFile);
+const applicationSourceChanged = changed.some(file => /\.[cm]?[jt]sx?$/.test(file) && !isTestFile(file));
+if (applicationSourceChanged && !testsChanged) {
+  throw new Error("Application source changes must include a focused regression test.");
+}
 if (sensitive.length) throw new Error(`AI patches may not modify security-sensitive paths; human intervention is required: ${sensitive.join(", ")}`);
 const output = process.env.GITHUB_OUTPUT;
 if (output) fs.appendFileSync(output, `protected_area_changed=false\nchanged_files=${changed.length}\n`);
