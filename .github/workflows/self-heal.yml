@@ -42,8 +42,14 @@ jobs:
         env:
           SITE_URL: https://scramjetfork.onrender.com
         run: |
-          if ! curl --fail --silent --show-error --retry 8 --retry-delay 10 --retry-connrefused --max-time 15 "$SITE_URL/healthz"; then
-            printf 'Live Render health check failed for %s/healthz. The service may be returning 502/503 or failing to start.\n' "$SITE_URL" > build.log
+          if ! curl --fail --silent --show-error --retry 8 --retry-delay 10 --retry-connrefused --max-time 15 \
+            --dump-header health.headers --output health.body --write-out 'HTTP %{http_code}\\n' \
+            "$SITE_URL/healthz" > health.status; then
+            {
+              printf '\\n--- Render health diagnostic ---\\n'
+              printf 'Health endpoint: %s/healthz\\n' "$SITE_URL"
+              cat health.status health.headers health.body 2>/dev/null || true
+            } >> build.log
             exit 1
           fi
 
