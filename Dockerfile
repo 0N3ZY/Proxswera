@@ -1,9 +1,8 @@
-FROM node:24-bookworm-slim
+# Build stage: the Rust/WASM and frontend toolchains never enter the runtime image.
+FROM node:24-bookworm-slim AS build
 
 WORKDIR /app
 
-# Rust and WASM tooling are only needed while building Scramjet. They remain
-# in the image for now, but the production Node process never loads them.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl git build-essential pkg-config binaryen \
     && rm -rf /var/lib/apt/lists/*
@@ -26,6 +25,19 @@ RUN pnpm --filter @mercuryworkshop/scramjet rewriter:build
 RUN pnpm exec rspack build --mode production
 RUN pnpm --filter @mercuryworkshop/scramjet-demo build
 
+# Runtime stage: only Node, the runtime dependencies, server entry point and built frontend.
+FROM node:24-bookworm-slim AS runtime
+
+WORKDIR /app
 ENV NODE_ENV=production
+ENV PORT=10000
+
+COPY --from=build --chown=node:node /app/node_modules ./node_modules
+COPY --from=build --chown=node:node /app/package.json ./package.json
+COPY --from=build --chown=node:node /app/devserver.ts ./devserver.ts
+COPY --from=build --chown=node:node /app/packages/demo/dist ./packages/demo/dist
+
+USER node
+
 EXPOSE 10000
-CMD ["pnpm", "start"]
+CMD ["./node_modules/.bin/tsx", "devserver.ts"]
