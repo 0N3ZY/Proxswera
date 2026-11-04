@@ -23,6 +23,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Fetch upstream Scramjet
         id: upstream
@@ -36,6 +37,7 @@ jobs:
         id: sync
         env:
           UPSTREAM_SHA: ${{ steps.upstream.outputs.sha }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           BRANCH="upstream-sync/${UPSTREAM_SHA:0:12}"
@@ -62,6 +64,7 @@ jobs:
             exit 0
           fi
 
+          gh auth setup-git
           git push origin "$BRANCH"
           echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
           echo "created=true" >> "$GITHUB_OUTPUT"
