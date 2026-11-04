@@ -28,7 +28,7 @@ const textFiles = [];
 for (const file of tracked) {
   if (excluded.test(file) || secretPath.test(file) || file.startsWith(".git/")) continue;
   try {
-    const stat = await fs.stat(file);
+    const stat = await fs.lstat(file);
     if (!stat.isFile() || stat.size > 18000) continue;
     const content = await fs.readFile(file, "utf8");
     if (content.includes("\0")) continue;
