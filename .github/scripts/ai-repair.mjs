@@ -8,12 +8,19 @@ if (!logPath) {
   process.exit(2);
 }
 
-const scrub = (value) => value
-  .replace(/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g, "[REDACTED PRIVATE KEY]")
-  .replace(/(Bearer\s+)[A-Za-z0-9._~+\/-]+=*/gi, "$1[REDACTED]")
-  .replace(/\b(?:GROQ_API_KEY|GEMINI_API_KEY|OPENAI_API_KEY|API_KEY|ACCESS_TOKEN|AUTH_TOKEN|PASSWORD|CLIENT_SECRET)\s*[:=]\s*[^\s,;]+/gi, (match) => match.replace(/[:=].*$/, "=[REDACTED]"))
-  .replace(/\b(?:gsk_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{30,}|gh[pousr]_[A-Za-z0-9_]{30,}|AKIA[0-9A-Z]{16})\b/g, "[REDACTED CREDENTIAL]");
-const log = scrub((await fs.readFile(logPath, "utf8")).slice(-32000));
+const configuredSecrets = Object.entries(process.env)
+  .filter(([name, value]) => /(?:API[_-]?KEY|API[_-]?TOKEN|ACCESS[_-]?TOKEN|AUTH[_-]?TOKEN|CLIENT[_-]?SECRET|PASSWORD|PRIVATE[_-]?KEY)/i.test(name) && typeof value === "string" && value.length >= 8)
+  .map(([, value]) => value);
+const scrub = (value) => {
+  let result = value
+    .replace(/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g, "[REDACTED PRIVATE KEY]")
+    .replace(/(Bearer\s+)[A-Za-z0-9._~+\/-]+=*/gi, "$1[REDACTED]")
+    .replace(/([?&](?:key|api[_-]?key|token|access[_-]?token|auth[_-]?token)=)[^&\s]+/gi, "$1[REDACTED]")
+    .replace(/\b(?:[A-Z0-9_]*API[_-]?(?:KEY|TOKEN)|ACCESS[_-]?TOKEN|AUTH[_-]?TOKEN|CLIENT[_-]?SECRET|PASSWORD|PRIVATE[_-]?KEY)\s*[:=]\s*["']?[^\s"'&,;]+/gi, "[REDACTED CREDENTIAL]")
+    .replace(/\b(?:gsk_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{30,}|gh[pousr]_[A-Za-z0-9_]{30,}|AKIA[0-9A-Z]{16})\b/g, "[REDACTED CREDENTIAL]");
+  for (const secret of configuredSecrets) result = result.split(secret).join("[REDACTED CONFIGURED SECRET]");
+  return result;
+};const log = scrub((await fs.readFile(logPath, "utf8")).slice(-32000));
 const tracked = execFileSync("git", ["ls-files", "-z"], { encoding: "utf8" }).split("\0").filter(Boolean);
 const excluded = /(^|\/)(node_modules|vendor|third_party|dist|build|coverage|\.next|\.turbo)(\/|$)|(^|\/)(pnpm-lock\.yaml|package-lock\.json|yarn\.lock|npm-shrinkwrap\.json|Cargo\.lock)$|(^|\/)\.github\/workflows\//i;
 const secretPath = /(^|\/)(\.env[^/]*|secrets?(\.[^/]*)?|credentials?(\.[^/]*)?|id_rsa|id_ed25519|.*\.pem|.*\.p12|.*\.pfx)$/i;
@@ -56,7 +63,7 @@ async function askGroq() {
     headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({ model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile", temperature: 0.1, messages: [{ role: "user", content: prompt }] }),
   });
-  if (!response.ok) throw new Error(`Groq HTTP ${response.status}: ${(await response.text()).slice(0, 1000)}`);
+  if (!response.ok) throw new Error(`Groq HTTP ${response.status}: ${scrub((await response.text()).slice(0, 1000))}`);
   return (await response.json()).choices?.[0]?.message?.content ?? "";
 }
 async function askGemini() {
@@ -67,7 +74,7 @@ async function askGemini() {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { temperature: 0.1 } }),
   });
-  if (!response.ok) throw new Error(`Gemini HTTP ${response.status}: ${(await response.text()).slice(0, 1000)}`);
+  if (!response.ok) throw new Error(`Gemini HTTP ${response.status}: ${scrub((await response.text()).slice(0, 1000))}`);
   const data = await response.json();
   return (data.candidates?.[0]?.content?.parts ?? []).map((part) => part.text ?? "").join("\n");
 }
