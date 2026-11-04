@@ -41,4 +41,4 @@ if (sensitive.length && !testsChanged) throw new Error("Changes to authenticatio
 const output = process.env.GITHUB_OUTPUT;
 if (output) fs.appendFileSync(output, `protected_area_changed=${sensitive.length ? "true" : "false"}\nchanged_files=${changed.length}\n`);
 console.log(`Patch safety checks passed for ${changed.length} changed files.`);
-if (sensitive.length) console.log(`High-risk areas changed; mandatory human review: ${sensitive.join(", ")}`);
+
