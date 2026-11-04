@@ -11,6 +11,14 @@ node_modules
 **/.env*
 **/secrets/**
 **/credentials/**
+**/.ssh/**
+**/.aws/**
+**/.kube/**
+**/.npmrc
+**/.netrc
+**/.pypirc
+**/.git-credentials
+**/.docker/config.json
 secrets*
 credentials*
 *.key
