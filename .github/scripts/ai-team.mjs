@@ -16,7 +16,7 @@ const scrub = value => {
 };
 const excluded=/(^|\/)(node_modules|vendor|dist|build|coverage)(\/|$)|(^|\/)(pnpm-lock\.yaml|package-lock\.json|yarn\.lock|Cargo\.lock)$/i;
 const secret=/(^|\/)(\.env[^/]*|secrets?|credentials?|.*\.(pem|p12|pfx))$/i;
-const protectedArea=/(^|\/)(auth|authentication|authorization|crypto|cryptography|encryption|tls|ssl|certificates?|security|secrets?|wisp|proxy|transport|network|sandbox|permissions?|sessions?|tokens?)(\/|\.|$)/i;
+const protectedArea=/(^|\/)devserver\.ts$|(^|\/)(auth|authentication|authorization|crypto|cryptography|encryption|tls|ssl|certificates?|security|secrets?|wisp|proxy|transport|network|sandbox|permissions?|sessions?|tokens?)(\/|\.|$)/i;
 const log=scrub((await fs.readFile(logPath,"utf8")).slice(-22000));
 const reusePath = process.argv[3];
 let reuse = "";
