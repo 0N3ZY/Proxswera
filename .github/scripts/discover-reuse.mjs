@@ -34,7 +34,7 @@ for (const q of queries) {
 for (const raw of (process.env.REUSE_REPOSITORIES || "").split(/\s+/).filter(Boolean).slice(0, 10)) {
   try {
     const u = new URL(raw);
-    if (u.protocol !== "https:" || u.username || u.password || !u.hostname.includes(".") || /(^|\.)(localhost|local)$/i.test(u.hostname) || /^\d{1,3}(?:\.\d{1,3}){3}$/.test(u.hostname)) continue;
+    if (u.protocol !== "https:" || u.username || u.password || u.search || u.hash || (u.port && u.port !== "443") || !u.hostname.includes(".") || /(^|\.)(localhost|local)$/i.test(u.hostname) || /^\d{1,3}(?:\.\d{1,3}){3}$/.test(u.hostname)) continue;
     add("Configured Git source", raw, raw, "unknown", "Explicitly configured repository; licence must be verified before reuse");
   } catch {}
 }
