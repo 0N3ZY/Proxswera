@@ -46,6 +46,7 @@ const dangerous = [
   /InsecureSkipVerify\s*:\s*true/i,
   /--tls-allow-insecure/i,
   /dangerouslySetInnerHTML\s*:/,
+  /wisp\.options\.allow_(?:private|loopback)_ips\s*=\s*true/i,
 ];
 for (const pattern of dangerous) if (pattern.test(additions)) throw new Error(`Potential security downgrade detected: ${pattern}`);
 
