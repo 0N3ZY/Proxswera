@@ -16,8 +16,11 @@ if (process.env.VITE_WISP_URL) {
   process.env.VITE_WISP_URL = `ws://localhost:${PORT}/`;
 }
 
-wisp.options.allow_private_ips = true;
-wisp.options.allow_loopback_ips = true;
+// Keep the upstream development defaults for local testing, but do not let
+// the public production proxy reach Render's loopback or private network.
+const isProduction = process.env.NODE_ENV === "production";
+wisp.options.allow_private_ips = !isProduction;
+wisp.options.allow_loopback_ips = !isProduction;
 
 const mimeTypes: Record<string, string> = {
   ".css": "text/css; charset=utf-8",
