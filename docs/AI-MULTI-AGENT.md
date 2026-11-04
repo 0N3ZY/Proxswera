@@ -24,7 +24,7 @@ Never commit these values or paste them into issues, logs, or prompts.
 All defaults are intended for free-tier use and can be changed with GitHub Actions environment variables:
 
 - Gemini: `gemini-3.8-flash`
-- Groq: `llama-3.3-70b-versatile`
+- Groq: `openai/gpt-oss-120b`
 - OpenRouter: `openrouter/free` (routes to an available free model)
 - Mistral: `mistral-small-latest` (only where the account has free Experiment-tier access)
 - Cloudflare Workers AI: `@cf/zai-org/glm-4.7-flash`
