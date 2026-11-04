@@ -9,6 +9,7 @@ on:
       - "package.json"
       - "pnpm-workspace.yaml"
       - ".github/workflows/render-runtime-check.yml"
+      - ".github/scripts/**"
   workflow_dispatch:
 
 permissions:
@@ -20,6 +21,11 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+
+      - name: Validate maintenance scripts
+        run: |
+          node --check .github/scripts/ai-repair.mjs
+          node --check .github/scripts/verify-ai-patch.mjs
 
       - name: Build production image
         run: docker build --progress=plain -t scramjetfork-smoke .
