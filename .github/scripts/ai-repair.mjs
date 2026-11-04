@@ -17,13 +17,14 @@ const scrub = (value) => {
     .replace(/(Bearer\s+)[A-Za-z0-9._~+\/-]+=*/gi, "$1[REDACTED]")
     .replace(/([?&](?:key|api[_-]?key|token|access[_-]?token|auth[_-]?token)=)[^&\s]+/gi, "$1[REDACTED]")
     .replace(/\b(?:[A-Z0-9_]*API[_-]?(?:KEY|TOKEN)|ACCESS[_-]?TOKEN|AUTH[_-]?TOKEN|CLIENT[_-]?SECRET|PASSWORD|PRIVATE[_-]?KEY)\s*[:=]\s*["']?[^\s"'&,;]+/gi, "[REDACTED CREDENTIAL]")
-    .replace(/\b(?:gsk_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{30,}|gh[pousr]_[A-Za-z0-9_]{30,}|AKIA[0-9A-Z]{16})\b/g, "[REDACTED CREDENTIAL]");
+    .replace(/\b(?:gsk_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{30,}|gh[pousr]_[A-Za-z0-9_]{30,}|AKIA[0-9A-Z]{16}|sk-or-v1-[A-Za-z0-9_-]{20,}|sk-[A-Za-z0-9_-]{24,})\b/g, "[REDACTED CREDENTIAL]");
   for (const secret of configuredSecrets) result = result.split(secret).join("[REDACTED CONFIGURED SECRET]");
   return result;
 };const log = scrub((await fs.readFile(logPath, "utf8")).slice(-32000));
 const tracked = execFileSync("git", ["ls-files", "-z"], { encoding: "utf8" }).split("\0").filter(Boolean);
 const excluded = /(^|\/)(node_modules|vendor|third_party|dist|build|coverage|\.next|\.turbo)(\/|$)|(^|\/)(pnpm-lock\.yaml|package-lock\.json|yarn\.lock|npm-shrinkwrap\.json|Cargo\.lock)$|(^|\/)\.github\/workflows\//i;
 const secretPath = /(^|\/)(\.env[^/]*|secrets?(\.[^/]*)?|credentials?(\.[^/]*)?|id_rsa|id_ed25519|.*\.pem|.*\.p12|.*\.pfx)$/i;
+const protectedArea = /(^|\/)devserver\.ts$|(^|\/)(auth|authentication|authorization|crypto|cryptography|encryption|tls|ssl|certificates?|security|secrets?|wisp|proxy|transport|network|sandbox|permissions?|sessions?|tokens?)(\/|\.|$)/i;
 const textFiles = [];
 for (const file of tracked) {
   if (excluded.test(file) || secretPath.test(file) || file.startsWith(".git/")) continue;
@@ -92,11 +93,15 @@ const paths = [...answer.matchAll(/^diff --git a\/(.*?) b\/(.*?)$/gm)];
 if (!paths.length || paths.length > 20 || answer.length > 120000) {
   console.error("Patch must change 1-20 files and be at most 120k characters."); process.exit(5);
 }
+if (/^(?:rename|copy) (?:from|to) |^(?:old|new) mode /m.test(answer)) {
+  console.error("Patch renames, copies, and file-mode changes are not accepted."); process.exit(7);
+}
 for (const match of paths) {
-  const file = match[2];
-  if (file.startsWith("/") || file.split("/").includes("..") || excluded.test(file) || secretPath.test(file) ||
-      file.startsWith(".github/") || /(^|\/)(pnpm-lock\.yaml|package-lock\.json|yarn\.lock|npm-shrinkwrap\.json|Cargo\.lock)$/.test(file)) {
-    console.error(`Patch touches a prohibited path: ${file}`); process.exit(6);
+  for (const file of [match[1], match[2]]) {
+    if (file.startsWith("/") || file.split("/").includes("..") || excluded.test(file) || secretPath.test(file) || protectedArea.test(file) ||
+        file.startsWith(".github/") || /(^|\/)(pnpm-lock\.yaml|package-lock\.json|yarn\.lock|npm-shrinkwrap\.json|Cargo\.lock)$/.test(file)) {
+      console.error(`Patch touches a prohibited path: ${file}`); process.exit(6);
+    }
   }
 }
 process.stdout.write(answer + "\n");
