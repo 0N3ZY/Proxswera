@@ -69,7 +69,11 @@ async function startProductionServer() {
   // those files; it does not boot Vite, Rspack, TypeScript or the banner WASM.
   const distDir = path.resolve("packages/demo/dist");
   const realDistDir = await realpath(distDir);
-  const indexFile = path.join(realDistDir, "index.html");
+  const indexPath = path.join(realDistDir, "index.html");
+  const indexFile = await realpath(indexPath);
+  if (indexFile !== realDistDir && !indexFile.startsWith(realDistDir + path.sep)) {
+    throw new Error("The built index.html must remain inside the static build directory.");
+  }
   await stat(indexFile);
 
   const server = http.createServer(async (req, res) => {
