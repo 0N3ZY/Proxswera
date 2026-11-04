@@ -83,7 +83,7 @@ jobs:
             --title "AI repair: verified build fix" \
             --body "The AI maintenance workflow proposed a minimal patch after a failed production image build. The patch was applied and the complete Docker build passed. Review the diff before merging."
 
-          if git diff-tree --no-commit-id --name-only -r HEAD | grep -Ev '(^README\.md$|^docs/.*\.md$|\.md$)' >/dev/null; then
+          if git diff-tree --no-commit-id --name-only -r HEAD | grep -Ev '(^README\.md$|^docs/.*\.md$|\.md$|\.css$)' >/dev/null; then
             echo "Changes include application code; human approval is required."
           else
             echo "Documentation or CSS-only patch; enabling auto-merge after required checks."
