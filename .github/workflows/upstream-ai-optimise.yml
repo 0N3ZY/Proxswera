@@ -25,6 +25,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -63,9 +64,11 @@ jobs:
         if: steps.candidate.outputs.found == 'true'
         env:
           UPSTREAM_BRANCH: ${{ steps.candidate.outputs.branch }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          git fetch origin "$UPSTREAM_BRANCH:refs/remotes/origin/$UPSTREAM_BRANCH"
+          AUTH_HEADER="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          git -c http.extraheader="AUTHORIZATION: basic $AUTH_HEADER" fetch origin "$UPSTREAM_BRANCH:refs/remotes/origin/$UPSTREAM_BRANCH"
           git worktree add candidate "origin/$UPSTREAM_BRANCH"
           git diff --no-ext-diff --binary origin/main..."origin/$UPSTREAM_BRANCH" > /tmp/upstream.diff
           if [ ! -s /tmp/upstream.diff ]; then
@@ -136,7 +139,8 @@ jobs:
           done
           curl --fail --show-error http://127.0.0.1:10000/healthz
           docker exec --user root scramjetfork-ai-optimised ln -s /etc/passwd /app/packages/demo/dist/__outside.txt
-          node ../scripts/smoke-runtime.mjs
+          docker cp ../scripts/smoke-runtime.mjs scramjetfork-ai-optimised:/tmp/smoke-runtime.mjs
+          docker exec --user node scramjetfork-ai-optimised node /tmp/smoke-runtime.mjs
 
       - name: Open optimisation pull request and dispatch full CI
         if: steps.verify.outcome == 'success'
@@ -158,6 +162,7 @@ jobs:
           git switch -c "$AI_BRANCH"
           git add -A
           git commit -m "AI optimisation: improve upstream Scramjet changes"
+          gh auth setup-git
           git push origin "$AI_BRANCH"
 
           gh pr create \
