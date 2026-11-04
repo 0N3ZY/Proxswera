@@ -15,7 +15,8 @@ const scrub = value => {
   return result;
 };
 const excluded=/(^|\/)(node_modules|vendor|dist|build|coverage)(\/|$)|(^|\/)(pnpm-lock\.yaml|package-lock\.json|yarn\.lock|Cargo\.lock)$/i;
-const secret=/(^|\/)(\.env[^/]*|secrets?(\.[^/]*)?|credentials?(\.[^/]*)?|id_rsa|id_ed25519|.*\.(pem|p12|pfx))$/i;
+const secret=/(^|\/)(\.env[^/]*|\.npmrc|\.netrc|\.pypirc|\.git-credentials|\.docker\/config\.json|secrets?(\.[^/]*)?|credentials?(\.[^/]*)?|id_(?:rsa|ed25519|ecdsa)|.*\.(pem|p12|pfx|key|jks|keystore|p8))$/i;
+const secretDir=/(^|\/)(\.ssh|\.aws|\.kube)(\/|$)/i;
 const protectedArea=/(^|\/)devserver\.ts$|(^|\/)(auth|authentication|authorization|crypto|cryptography|encryption|tls|ssl|certificates?|security|secrets?|wisp|proxy|transport|network|sandbox|permissions?|sessions?|tokens?)(\/|\.|$)/i;
 const log=scrub((await fs.readFile(logPath,"utf8")).slice(-22000));
 const reusePath = process.argv[3];
@@ -32,7 +33,7 @@ let budget=65000, files=[];
 const trackedFiles = execFileSync("git",["ls-files","-z"],{encoding:"utf8"}).split("\0").filter(Boolean);
 trackedFiles.sort((a,b) => Number(b === "docs/AI-PROJECT-MEMORY.md") - Number(a === "docs/AI-PROJECT-MEMORY.md"));
 for(const f of trackedFiles){
- if(excluded.test(f)||secret.test(f)||protectedArea.test(f)||f.startsWith(".github/"))continue;
+ if(excluded.test(f)||secret.test(f)||secretDir.test(f)||protectedArea.test(f)||f.startsWith(".github/"))continue;
  try{const st=await fs.lstat(f);if(!st.isFile()||st.size>12000)continue;const s=scrub(await fs.readFile(f,"utf8"));if(s.includes("\0"))continue;const p=s.slice(0,Math.min(6500,budget));if(p)files.push("--- "+f+" ---\n"+p);budget-=p.length;if(budget<=0)break;}catch{}
 }
 const mode = process.env.AI_TASK_MODE === "optimize" ? "optimize" : "repair";
@@ -84,7 +85,7 @@ if (/^(?:rename|copy) (?:from|to) |^(?:old|new) mode /m.test(patch)) {
 }
 for(const m of paths){
  for(const f of [m[1],m[2]]){
-  if(f.startsWith("/")||f.split("/").includes("..")||excluded.test(f)||secret.test(f)||protectedArea.test(f)||f.startsWith(".github/")){
+  if(f.startsWith("/")||f.split("/").includes("..")||excluded.test(f)||secret.test(f)||secretDir.test(f)||protectedArea.test(f)||f.startsWith(".github/")){
    console.error("Prohibited path "+f);process.exit(7);
   }
  }
