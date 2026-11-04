@@ -58,7 +58,7 @@ jobs:
         if: steps.build.outcome == 'failure' || steps.health.outcome == 'failure'
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          GROQ_MODEL: llama-3.3-70b-versatile
+          GROQ_MODEL: openai/gpt-oss-120b
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: gemini-3.8-flash
           OR_API_KEY: ${{ secrets.OR_API_KEY || secrets.OPENROUTER_API_KEY }}
