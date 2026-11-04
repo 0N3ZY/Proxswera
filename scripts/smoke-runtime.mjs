@@ -31,6 +31,8 @@ assert.equal(missingAsset.status, 404, "Missing asset must remain a real 404");
 
 const traversal = await fetch(base + "/%2e%2e%2fpackage.json", { headers: { Accept: "*/*" } });
 assert.equal(traversal.status, 403, "Encoded path traversal must be rejected");
+const symlinkEscape = await fetch(base + "/__outside.txt", { headers: { Accept: "*/*" } });
+assert.equal(symlinkEscape.status, 403, "Symlinks must not expose files outside the build directory");
 const unsupported = await fetch(base + "/", { method: "POST" });
 assert.equal(unsupported.status, 405, "Unsupported methods should return 405");
 assert.match(unsupported.headers.get("allow") || "", /GET.*HEAD/);
