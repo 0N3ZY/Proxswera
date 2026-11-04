@@ -141,7 +141,7 @@ jobs:
           if git diff-tree --no-commit-id --name-only -r HEAD | grep -Ev '(^README\.md$|^docs/.*\.md$|\.md$)' >/dev/null; then
             echo "Changes include application code; human approval is required."
           else
-            echo "Documentation or CSS-only patch; enabling auto-merge after required checks."
+            echo "Documentation-only patch; enabling auto-merge after required checks."
             gh pr merge "$BRANCH" --repo "$GH_REPO" --auto --squash
           fi
 
