@@ -32,8 +32,24 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=10000
 
-COPY --from=build --chown=node:node /app/node_modules ./node_modules
-COPY --from=build --chown=node:node /app/package.json ./package.json
+# Install only the root package's production dependencies. The workspace
+# manifests are needed for pnpm's catalog, but the frontend/build packages
+# are deliberately excluded from the runtime dependency graph.
+RUN corepack enable && corepack prepare pnpm@10.12.1 --activate
+COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY --from=build /app/packages/core/package.json ./packages/core/package.json
+COPY --from=build /app/packages/runway/package.json ./packages/runway/package.json
+COPY --from=build /app/packages/rpc/package.json ./packages/rpc/package.json
+COPY --from=build /app/packages/controller/package.json ./packages/controller/package.json
+COPY --from=build /app/packages/utils/package.json ./packages/utils/package.json
+COPY --from=build /app/packages/demo/package.json ./packages/demo/package.json
+COPY --from=build /app/packages/bootstrap/package.json ./packages/bootstrap/package.json
+COPY --from=build /app/packages/create-proxy-app/package.json ./packages/create-proxy-app/package.json
+RUN pnpm install --prod --filter scramjet-root --no-frozen-lockfile \
+    && rm -f pnpm-lock.yaml \
+    && rm -rf /root/.cache/node/corepack /root/.local/share/pnpm/store
+
 COPY --from=build --chown=node:node /app/devserver.ts ./devserver.ts
 COPY --from=build --chown=node:node /app/packages/demo/dist ./packages/demo/dist
 
