@@ -520,7 +520,7 @@ jobs:
           path: packages/utils/dist
 
       - name: Build Frontend
-        run: VITE_WISP_URL="wss://anura.pro/" pnpm build
+        run: VITE_WISP_URL="wss://scramjetfork.onrender.com/" pnpm build
         working-directory: packages/demo
 
       - name: Upload Artifact (frontend)
