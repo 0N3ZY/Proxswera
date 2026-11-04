@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
+import path from "node:path";
 
 const changed = execFileSync("git", ["diff", "--name-only", "-z"], { encoding: "utf8" }).split("\0").filter(Boolean);
 if (!changed.length) throw new Error("AI patch did not change any tracked files.");
@@ -10,7 +11,18 @@ for (const file of changed) {
   if (prohibited.test(file) || /(^|\/)(pnpm-lock\.yaml|package-lock\.json|yarn\.lock|npm-shrinkwrap\.json|Cargo\.lock)$/.test(file)) {
     throw new Error(`Protected infrastructure/secret/lockfile path changed: ${file}`);
   }
-  if (!fs.existsSync(file)) throw new Error(`Unexpected deleted or missing file: ${file}`);
+  if (path.isAbsolute(file) || file.split(/[\\/]/).includes("..")) {
+    throw new Error(`Unsafe patch path: ${file}`);
+  }
+  let info;
+  try {
+    info = fs.lstatSync(file);
+  } catch {
+    throw new Error(`Unexpected deleted or missing file: ${file}`);
+  }
+  if (!info.isFile() || info.isSymbolicLink()) {
+    throw new Error(`AI patches may only create or modify regular files: ${file}`);
+  }
 }
 
 const diff = execFileSync("git", ["diff", "--unified=0", "--"], { encoding: "utf8" });
