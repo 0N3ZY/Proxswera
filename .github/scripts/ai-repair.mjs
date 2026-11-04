@@ -81,9 +81,9 @@ async function askGemini() {
 let answer = "";
 try { answer = await askGroq(); console.error("AI diagnosis completed with Groq."); }
 catch (error) {
-  console.error(`Groq unavailable: ${error.message}`);
+  console.error(`Groq unavailable: ${scrub(error.message)}`);
   try { answer = await askGemini(); console.error("AI diagnosis completed with Gemini."); }
-  catch (fallbackError) { console.error(`Gemini unavailable: ${fallbackError.message}`); process.exit(1); }
+  catch (fallbackError) { console.error(`Gemini unavailable: ${scrub(fallbackError.message)}`); process.exit(1); }
 }
 answer = answer.trim().replace(/^`{3}(?:diff)?\s*/i, "").replace(/\s*`{3}$/, "");
 if (answer === "NO_SAFE_PATCH") process.exit(3);
