@@ -23,11 +23,12 @@ const scrub = (value) => {
 };const log = scrub((await fs.readFile(logPath, "utf8")).slice(-32000));
 const tracked = execFileSync("git", ["ls-files", "-z"], { encoding: "utf8" }).split("\0").filter(Boolean);
 const excluded = /(^|\/)(node_modules|vendor|third_party|dist|build|coverage|\.next|\.turbo)(\/|$)|(^|\/)(pnpm-lock\.yaml|package-lock\.json|yarn\.lock|npm-shrinkwrap\.json|Cargo\.lock)$|(^|\/)\.github\/workflows\//i;
-const secretPath = /(^|\/)(\.env[^/]*|secrets?(\.[^/]*)?|credentials?(\.[^/]*)?|id_rsa|id_ed25519|.*\.pem|.*\.p12|.*\.pfx)$/i;
+const secretPath = /(^|\/)(\.env[^/]*|\.npmrc|\.netrc|\.pypirc|\.git-credentials|\.docker\/config\.json|secrets?(\.[^/]*)?|credentials?(\.[^/]*)?|id_(?:rsa|ed25519|ecdsa)|.*\.(?:pem|p12|pfx|key|jks|keystore|p8))$/i;
+const secretDir = /(^|\/)(\.ssh|\.aws|\.kube)(\/|$)/i;
 const protectedArea = /(^|\/)devserver\.ts$|(^|\/)(auth|authentication|authorization|crypto|cryptography|encryption|tls|ssl|certificates?|security|secrets?|wisp|proxy|transport|network|sandbox|permissions?|sessions?|tokens?)(\/|\.|$)/i;
 const textFiles = [];
 for (const file of tracked) {
-  if (excluded.test(file) || secretPath.test(file) || file.startsWith(".git/")) continue;
+  if (excluded.test(file) || secretPath.test(file) || secretDir.test(file) || file.startsWith(".git/")) continue;
   try {
     const stat = await fs.lstat(file);
     if (!stat.isFile() || stat.size > 18000) continue;
@@ -98,7 +99,7 @@ if (/^(?:rename|copy) (?:from|to) |^(?:old|new) mode /m.test(answer)) {
 }
 for (const match of paths) {
   for (const file of [match[1], match[2]]) {
-    if (file.startsWith("/") || file.split("/").includes("..") || excluded.test(file) || secretPath.test(file) || protectedArea.test(file) ||
+    if (file.startsWith("/") || file.split("/").includes("..") || excluded.test(file) || secretPath.test(file) || secretDir.test(file) || protectedArea.test(file) ||
         file.startsWith(".github/") || /(^|\/)(pnpm-lock\.yaml|package-lock\.json|yarn\.lock|npm-shrinkwrap\.json|Cargo\.lock)$/.test(file)) {
       console.error(`Patch touches a prohibited path: ${file}`); process.exit(6);
     }
