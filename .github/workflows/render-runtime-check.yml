@@ -10,6 +10,8 @@ on:
       - "pnpm-workspace.yaml"
       - ".github/workflows/render-runtime-check.yml"
       - ".github/scripts/**"
+      - "scripts/**"
+      - "tests/ci/**"
   workflow_dispatch:
 
 permissions:
