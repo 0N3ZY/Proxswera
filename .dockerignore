@@ -11,7 +11,10 @@ node_modules
 **/.env*
 **/secrets/**
 **/credentials/**
-**/*.pem
+secrets*
+credentials*
+*.key
+*.pem
 **/*.p12
 **/*.pfx
 **/id_rsa
