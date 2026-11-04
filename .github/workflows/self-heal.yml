@@ -98,6 +98,7 @@ jobs:
           cleanup() { docker rm -f scramjetfork-repaired >/dev/null 2>&1 || true; }
           trap cleanup EXIT
           for attempt in $(seq 1 30); do
+            : "$attempt"
             if curl --fail --silent http://127.0.0.1:10000/healthz | grep -q '^ok$'; then
               break
             fi
