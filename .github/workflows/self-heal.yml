@@ -35,9 +35,21 @@ jobs:
           set -o pipefail
           docker build --progress=plain -t scramjetfork-ci . 2>&1 | tee build.log
 
+      - name: Check live Render health
+        id: health
+        if: steps.build.outcome == 'success'
+        continue-on-error: true
+        env:
+          SITE_URL: https://scramjetfork.onrender.com
+        run: |
+          if ! curl --fail --silent --show-error --retry 8 --retry-delay 10 --retry-connrefused --max-time 15 "$SITE_URL/healthz"; then
+            printf 'Live Render health check failed for %s/healthz. The service may be returning 502/503 or failing to start.\n' "$SITE_URL" > build.log
+            exit 1
+          fi
+
       - name: Ask AI for a minimal repair
         id: ai
-        if: steps.build.outcome == 'failure'
+        if: steps.build.outcome == 'failure' || steps.health.outcome == 'failure'
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GROQ_MODEL: llama-3.3-70b-versatile
@@ -48,7 +60,7 @@ jobs:
 
       - name: Apply and verify AI patch
         id: verify
-        if: steps.build.outcome == 'failure' && steps.ai.outcome == 'success'
+        if: (steps.build.outcome == 'failure' || steps.health.outcome == 'failure') && steps.ai.outcome == 'success'
         run: |
           git apply --check repair.patch
           git apply repair.patch
@@ -57,7 +69,7 @@ jobs:
 
       - name: Create repair pull request
         id: pr
-        if: steps.build.outcome == 'failure' && steps.verify.outcome == 'success'
+        if: (steps.build.outcome == 'failure' || steps.health.outcome == 'failure') && steps.verify.outcome == 'success'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -91,6 +103,6 @@ jobs:
           fi
 
       - name: Report missing AI secrets
-        if: steps.build.outcome == 'failure' && steps.ai.outcome == 'failure'
+        if: (steps.build.outcome == 'failure' || steps.health.outcome == 'failure') && steps.ai.outcome == 'failure'
         run: |
           echo "::warning::Build failed and AI repair could not run. Configure GROQ_API_KEY and/or GEMINI_API_KEY as GitHub Actions repository secrets."
