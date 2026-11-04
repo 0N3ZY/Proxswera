@@ -19,7 +19,9 @@ const secret=/(^|\/)(\.env[^/]*|secrets?|credentials?|.*\.(pem|p12|pfx))$/i;
 const protectedArea=/(^|\/)(auth|authentication|authorization|crypto|cryptography|encryption|tls|ssl|certificates?|security|secrets?|wisp|proxy|transport|network|sandbox|permissions?|sessions?|tokens?)(\/|\.|$)/i;
 const log=scrub((await fs.readFile(logPath,"utf8")).slice(-22000));
 let budget=65000, files=[];
-for(const f of execFileSync("git",["ls-files","-z"],{encoding:"utf8"}).split("\0").filter(Boolean)){
+const trackedFiles = execFileSync("git",["ls-files","-z"],{encoding:"utf8"}).split("\0").filter(Boolean);
+trackedFiles.sort((a,b) => Number(b === "docs/AI-PROJECT-MEMORY.md") - Number(a === "docs/AI-PROJECT-MEMORY.md"));
+for(const f of trackedFiles){
  if(excluded.test(f)||secret.test(f)||protectedArea.test(f)||f.startsWith(".github/"))continue;
  try{const st=await fs.stat(f);if(!st.isFile()||st.size>12000)continue;const s=scrub(await fs.readFile(f,"utf8"));if(s.includes("\0"))continue;const p=s.slice(0,Math.min(6500,budget));if(p)files.push("--- "+f+" ---\n"+p);budget-=p.length;if(budget<=0)break;}catch{}
 }
