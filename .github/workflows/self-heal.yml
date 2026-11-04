@@ -135,7 +135,7 @@ jobs:
             --title "AI repair: verified build fix" \
             --body "The AI maintenance workflow proposed a repair after a failed production build or health check. The patch passed deterministic path, secret-leak, security-downgrade, whitespace, production Docker-build, and runtime smoke checks. Application and protected-area changes require human review; no security-sensitive code is auto-merged."
 
-          if git diff-tree --no-commit-id --name-only -r HEAD | grep -Ev '(^README\.md$|^docs/.*\.md$|\.md$|\.css$)' >/dev/null; then
+          if git diff-tree --no-commit-id --name-only -r HEAD | grep -Ev '(^README\.md$|^docs/.*\.md$|\.md$)' >/dev/null; then
             echo "Changes include application code; human approval is required."
           else
             echo "Documentation or CSS-only patch; enabling auto-merge after required checks."
