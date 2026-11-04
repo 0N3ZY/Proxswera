@@ -37,8 +37,8 @@ for (const pattern of dangerous) if (pattern.test(additions)) throw new Error(`P
 
 const sensitive = changed.filter(file => protectedArea.test(file));
 const testsChanged = changed.some(file => /(^|\/)(__tests__|tests?|spec)(\/|\.)|\.(test|spec)\.[cm]?[jt]sx?$/.test(file));
-if (sensitive.length && !testsChanged) throw new Error("Changes to authentication, encryption, TLS, Wisp, proxy, or other protected areas must include focused regression tests.");
+if (sensitive.length) throw new Error(`AI patches may not modify security-sensitive paths; human intervention is required: ${sensitive.join(", ")}`);
 const output = process.env.GITHUB_OUTPUT;
-if (output) fs.appendFileSync(output, `protected_area_changed=${sensitive.length ? "true" : "false"}\nchanged_files=${changed.length}\n`);
+if (output) fs.appendFileSync(output, \`protected_area_changed=false\nchanged_files=\${changed.length}\n\`);
 console.log(`Patch safety checks passed for ${changed.length} changed files.`);
 
