@@ -27,6 +27,8 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Validate maintenance scripts
         run: |
@@ -55,7 +57,8 @@ jobs:
           done
           curl --fail --show-error http://127.0.0.1:10000/healthz
           docker exec --user root scramjetfork-smoke ln -s /etc/passwd /app/packages/demo/dist/__outside.txt
-          node scripts/smoke-runtime.mjs
+          docker cp scripts/smoke-runtime.mjs scramjetfork-smoke:/tmp/smoke-runtime.mjs
+          docker exec --user node scramjetfork-smoke node /tmp/smoke-runtime.mjs
 
       - name: Print container logs on failure
         if: failure()
