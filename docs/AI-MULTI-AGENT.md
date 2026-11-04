@@ -4,7 +4,9 @@ The scheduled/manual GitHub Actions maintenance workflow uses a multi-provider t
 
 ## GitHub Actions secrets
 
-Add these under **Repository Settings → Secrets and variables → Actions → New repository secret**. These are separate from Render service environment variables because the AI maintenance job runs on GitHub Actions. The workflows also accept the former `OPENROUTER_API_KEY`, `CLOUDFLARE_API_TOKEN`, and `CLOUDFLARE_ACCOUNT_ID` names as fallbacks while migrating.\n\nCloudflare Pages deployment uses a separate GitHub Actions secret: `CFP_API_KEY`. It is not the Workers AI token and should remain scoped to Cloudflare Pages deployment permissions.
+Add these under **Repository Settings → Secrets and variables → Actions → New repository secret**. These are separate from Render service environment variables because the AI maintenance job runs on GitHub Actions. The workflows also accept the former `OPENROUTER_API_KEY`, `CLOUDFLARE_API_TOKEN`, and `CLOUDFLARE_ACCOUNT_ID` names as fallbacks while migrating.
+
+Cloudflare Pages deployment uses a separate GitHub Actions secret: `CFP_API_KEY`. It is not the Workers AI token and should remain scoped to Cloudflare Pages deployment permissions.
 
 | Secret | Purpose |
 |---|---|
