@@ -1,5 +1,5 @@
 import { createReadStream } from "node:fs";
-import { stat } from "node:fs/promises";
+import { realpath, stat } from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
 import process from "node:process";
@@ -55,7 +55,8 @@ async function startProductionServer() {
   // The frontend is compiled during the image build. Production only serves
   // those files; it does not boot Vite, Rspack, TypeScript or the banner WASM.
   const distDir = path.resolve("packages/demo/dist");
-  const indexFile = path.join(distDir, "index.html");
+  const realDistDir = await realpath(distDir);
+  const indexFile = path.join(realDistDir, "index.html");
   await stat(indexFile);
 
   const server = http.createServer(async (req, res) => {
@@ -92,8 +93,15 @@ async function startProductionServer() {
       fileInfo = await stat(filePath);
       if (fileInfo.isDirectory()) {
         filePath = path.join(filePath, "index.html");
-        fileInfo = await stat(filePath);
       }
+      // Resolve symlinks as well as ".." segments so a file placed inside the
+      // build output cannot point the public server outside that directory.
+      filePath = await realpath(filePath);
+      if (filePath !== realDistDir && !filePath.startsWith(realDistDir + path.sep)) {
+        res.writeHead(403).end("Forbidden");
+        return;
+      }
+      fileInfo = await stat(filePath);
     } catch {
       // The demo is a single-page application. Fall back to index.html for
       // navigation routes, but leave missing asset requests as real 404s.
