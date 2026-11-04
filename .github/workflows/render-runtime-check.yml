@@ -25,6 +25,7 @@ jobs:
       - name: Validate maintenance scripts
         run: |
           node --check .github/scripts/ai-repair.mjs
+          node --check .github/scripts/ai-team.mjs
           node --check .github/scripts/verify-ai-patch.mjs
 
       - name: Build production image
