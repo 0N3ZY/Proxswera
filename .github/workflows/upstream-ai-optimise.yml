@@ -77,6 +77,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           REUSE_SEARCH_TERMS: "web proxy;browser proxy;service worker proxy;websocket proxy;Wisp;Scramjet browser;Cursor rules;Cursor extensions"
           REUSE_MAX_REPOS: "5"
+          REUSE_REPOSITORIES: ${{ vars.REUSE_REPOSITORIES }}
         run: |
           node .github/scripts/discover-reuse.mjs /tmp/reuse-research.json
 
