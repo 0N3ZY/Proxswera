@@ -34,6 +34,8 @@ const secretPatterns = [
   /\bAIza[0-9A-Za-z_-]{30,}\b/,
   /\bgsk_[A-Za-z0-9]{20,}\b/,
   /\bsk-[A-Za-z0-9_-]{24,}\b/,
+  /\b[A-Z0-9_]*(?:API[_-]?(?:KEY|TOKEN)|ACCESS[_-]?TOKEN|AUTH[_-]?TOKEN|CLIENT[_-]?SECRET|PASSWORD)\s*[:=]\s*["'][^"']{8,}["']/i,
+  /https?:\/\/[^/\s:@]+:[^@\s/]+@/i,
 ];
 for (const pattern of secretPatterns) if (pattern.test(additions)) throw new Error(`Possible credential or private key added: ${pattern}`);
 
