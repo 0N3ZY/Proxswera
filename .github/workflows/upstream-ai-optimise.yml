@@ -71,6 +71,15 @@ jobs:
             exit 1
           fi
 
+      - name: Discover reusable implementations across code hosts
+        if: steps.candidate.outputs.found == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REUSE_SEARCH_TERMS: "web proxy;browser proxy;service worker proxy;websocket proxy;Wisp;Scramjet browser;Cursor rules;Cursor extensions"
+          REUSE_MAX_REPOS: "5"
+        run: |
+          node .github/scripts/discover-reuse.mjs /tmp/reuse-research.json
+
       - name: Ask the AI team for evidence-based optimisations
         id: ai
         if: steps.candidate.outputs.found == 'true'
@@ -90,7 +99,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_MODEL: "@cf/zai-org/glm-4.7-flash"
         run: |
-          node ../.github/scripts/ai-team.mjs /tmp/upstream.diff > /tmp/optimise.patch
+          node ../.github/scripts/ai-team.mjs /tmp/upstream.diff /tmp/reuse-research.json > /tmp/optimise.patch
 
       - name: Apply and deterministically verify optimisation
         id: verify
