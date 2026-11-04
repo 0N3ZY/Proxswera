@@ -12,7 +12,14 @@ on:
       - "eslint.config.json"
       - "prettier.config.json"
   pull_request:
-    paths-ignore: *ci_ignore_paths
+    paths-ignore:
+      - ".zed/**"
+      - ".vscode/**"
+      - "README.md"
+      # Formatters
+      - ".editorconfig"
+      - "eslint.config.json"
+      - "prettier.config.json"
   workflow_dispatch:
 
 env:
