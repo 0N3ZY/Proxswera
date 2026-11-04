@@ -40,6 +40,13 @@ This file is the durable project memory shared with the repository's AI maintena
 - Do not deploy, restart, or change production Render settings as part of an AI repair.
 - If an upstream merge conflicts, stop and request human resolution rather than guessing.
 
+## Upstream update workflow
+
+- A daily workflow fetches `MercuryWorkshop/scramjet` main and proposes a dedicated upstream-sync PR; it never overwrites fork main directly.
+- After an upstream sync workflow completes, a separate trusted workflow runs the multi-provider AI team in optimisation mode against the upstream diff.
+- AI optimisations are proposed in a second PR targeting the upstream-sync branch. They must pass deterministic verification, a production Docker build, runtime smoke tests, and separately dispatched full CI before human approval.
+- If no safe, evidence-backed optimisation is found, no optimisation PR is opened.
+
 ## Shared agent workflow
 
 - The coordinator assigns distinct patch-author, security-reviewer, and independent-reviewer roles.
