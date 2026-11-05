@@ -11,8 +11,8 @@
 
 ---
 
-Scramjet is an experimental interception-based web proxy designed to evade internet censorship and bypass arbitrary browser restrictions.<br><br>
-Scramjet allows you to sandbox arbitrary web content, bypass CORS restrictions on loading websites, and instrument and debug websites inside the browser itself. This is accomplished through a combination of interception, rewriting, and sandboxing techniques. You can learn more about the technical details <a href="https://developer.puter.com/blog/how-I-ported-the-web-to-the-web/"><strong>here</strong></a>.<br><br>
+Proxswera is an open-source browser and web proxy built upon Scramjet, designed to help users access the open web in environments affected by internet censorship and network restrictions.<br><br>
+Proxswera builds on Scramjet's interception, rewriting, and sandboxing techniques, with ongoing development maintained through a combination of AI-assisted updates and human contributions. This collaborative approach aims to keep the project up to date while continually improving compatibility, performance, and reliability.<br><br>
 
 <div align="center">
  <a href="https://github.com/MercuryWorkshop/scramjet/wiki">Documentation</a> | <a href="https://scramjet.mercurywork.shop">Playground</a> | <a href="https://discord.gg/tmApqGqfX2">Discord</a>
