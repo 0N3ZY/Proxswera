@@ -1,5 +1,7 @@
-name: Deploy Cloudflare Pages
+name: Deploy Cloudflare Worker
 
+# Production Worker deployments happen only after the trusted main-branch CI
+# workflow succeeds. Pull-request code never receives the Cloudflare token.
 on:
   workflow_run:
     workflows: ["CI"]
@@ -11,30 +13,33 @@ permissions:
   contents: read
 
 concurrency:
-  group: cloudflare-pages-production
+  group: cloudflare-worker-production
   cancel-in-progress: true
 
 jobs:
   deploy:
-    name: Deploy static frontend
+    name: Deploy Scramjet edge proxy
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     env:
-      CFP_API_KEY: ${{ secrets.CFP_API_KEY }}
+      CF_WORKERS_API_TOKEN: ${{ secrets.CF_WORKERS_API_TOKEN }}
     steps:
-      - name: Download built frontend
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend
-          path: ./frontend
-          repository: ${{ github.repository }}
-          run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Explain missing deployment credential
+        if: env.CF_WORKERS_API_TOKEN == ''
+        run: |
+          echo "::warning::Cloudflare Worker deployment skipped. Add CF_WORKERS_API_TOKEN with Workers Scripts Write permission."
 
-      - name: Deploy to Cloudflare Pages
-        if: env.CFP_API_KEY != ''
+      - name: Check out the exact CI-tested commit
+        if: env.CF_WORKERS_API_TOKEN != ''
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Deploy Worker
+        if: env.CF_WORKERS_API_TOKEN != ''
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CFP_API_KEY }}
+          apiToken: ${{ secrets.CF_WORKERS_API_TOKEN }}
           accountId: d101b2f159ae9b6cdab08c518f0de76c
-          command: pages deploy ./frontend --project-name=scramjet-static --branch=main
+          command: deploy --config wrangler.jsonc
