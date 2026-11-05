@@ -28,3 +28,10 @@ test("pnpm workspace does not retain a stale npm lockfile", async () => {
     { code: "ENOENT" },
   );
 });
+
+
+test("Cloudflare previews use the PR preview backend rather than production", async () => {
+  const config = JSON.parse(await readFile(new URL("../../wrangler.jsonc", import.meta.url), "utf8"));
+  assert.equal(config.previews.vars.RENDER_ORIGIN, "https://scramjetfork-pr-1.onrender.com");
+  assert.notEqual(config.previews.vars.RENDER_ORIGIN, config.vars.RENDER_ORIGIN);
+});
