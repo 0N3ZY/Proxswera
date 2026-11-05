@@ -16,7 +16,7 @@ export function discoverPlatforms(env = process.env) {
     github: Boolean(env.GITHUB_REPOSITORY || env.GITHUB_ACTIONS),
     vercel: isHttpsOrigin(env.VERCEL_FRONTEND_ORIGIN),
     cloudflare: isHttpsOrigin(env.CLOUDFLARE_WORKER_ORIGIN),
-    render: isHttpsOrigin(env.RENDER_ORIGIN) || Boolean(env.RENDER_EXTERNAL_HOSTNAME) || true,
+    render: isHttpsOrigin(env.RENDER_ORIGIN) || Boolean(env.RENDER_EXTERNAL_HOSTNAME) || env.NODE_ENV === "development",
     supabase: isHttpsOrigin(env.SUPABASE_URL) &&
       Boolean(env.SUPABASE_PUBLISHABLE_KEY || env.SUPABASE_SECRET_KEY || env.SUPABASE_SERVICE_ROLE_KEY),
   };
