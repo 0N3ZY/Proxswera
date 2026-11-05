@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
+import { getRepositoryRevision } from "./reuse-provenance.mjs";
 
 const queries = (process.env.REUSE_SEARCH_TERMS || "web proxy;browser proxy;service worker proxy;websocket proxy;Wisp;Scramjet browser;Cursor rules")
   .split(";").map(x => x.trim()).filter(Boolean).slice(0, 8);
@@ -47,6 +48,7 @@ for (const item of selected) {
   const dir = path.join(root, String(records.length));
   try {
     execFileSync("git", ["clone", "--depth=1", "--filter=blob:none", "--no-checkout", "--", item.url, dir], { stdio: "ignore", timeout: 30000 });
+    record.revision = getRepositoryRevision(dir);
     const names = execFileSync("git", ["-C", dir, "ls-tree", "-r", "--name-only", "HEAD"], { encoding: "utf8", timeout: 10000 }).split("\n").filter(Boolean);
     if (!record.licenceApproved) {
       const licenceFiles = names.filter(n => /(^|\/)(LICENSE|LICENCE|COPYING)(\.[^/]*)?$/i.test(n)).slice(0, 3);
