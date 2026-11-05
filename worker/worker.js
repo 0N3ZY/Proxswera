@@ -56,10 +56,10 @@ function json(body, status = 200) {
 export default {
   async fetch(request, env) {
     const incomingUrl = new URL(request.url);
-    const renderOrigin = resolveOrigin(env.RENDER_ORIGIN, DEFAULT_RENDER_ORIGIN);
 
     if (incomingUrl.pathname === "/__edge/health") {
       try {
+        const renderOrigin = resolveOrigin(env.RENDER_ORIGIN, DEFAULT_RENDER_ORIGIN);
         const health = await fetch(new URL("/healthz", renderOrigin), {
           method: "GET",
           headers: { "cache-control": "no-cache" },
