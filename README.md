@@ -1,62 +1,116 @@
-<h1 align="center">Scramjet</h1>
-<div align="center">
-  <img src="assets/scramjet.png" height="200" />
-</div>
+<h1 align="center">Proxswera</h1>
+
+<!-- The Proxswera logo is awaiting its creator's artwork. Add the approved asset at assets/proxswera-logo.svg when ready. -->
 
 <div align="center">
-  <a href="https://www.npmjs.com/package/@mercuryworkshop/scramjet"><img src="https://img.shields.io/npm/v/@mercuryworkshop/scramjet.svg?maxAge=3600" alt="npm version" /></a>
-  <img src="https://img.shields.io/github/issues/MercuryWorkshop/scramjet?style=flat&color=orange" />
-  <img src="https://img.shields.io/github/stars/MercuryWorkshop/scramjet?style=flat&color=orange" />
+
+[![GitHub stars](https://img.shields.io/github/stars/StringShot/Proxswera?style=flat&color=orange)](https://github.com/StringShot/Proxswera/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/StringShot/Proxswera?style=flat&color=orange)](https://github.com/StringShot/Proxswera/forks)
+[![Upstream engine package](https://img.shields.io/npm/v/@mercuryworkshop/scramjet.svg?maxAge=3600)](https://www.npmjs.com/package/@mercuryworkshop/scramjet)
+
 </div>
 
 ---
 
-Scramjet is an experimental interception-based web proxy designed to evade internet censorship and bypass arbitrary browser restrictions.<br><br>
-Scramjet allows you to sandbox arbitrary web content, bypass CORS restrictions on loading websites, and instrument and debug websites inside the browser itself. This is accomplished through a combination of interception, rewriting, and sandboxing techniques. You can learn more about the technical details <a href="https://developer.puter.com/blog/how-I-ported-the-web-to-the-web/"><strong>here</strong></a>.<br><br>
+**Proxswera** is an open-source browser and web proxy built upon the [Scramjet](https://github.com/MercuryWorkshop/scramjet) engine. It is designed to help people access the open web in environments affected by internet censorship and network restrictions.
+
+The project builds on Scramjet's interception, rewriting, and sandboxing techniques. Proxswera is maintained through AI-assisted engineering and human contributions, with an emphasis on compatibility, performance, reliability, security, and transparent development.
+
+> Proxswera is a fork and continuing project, not a claim of original authorship over the Scramjet engine. Upstream code, package names, notices, and licence obligations are retained where required.
 
 <div align="center">
- <a href="https://github.com/MercuryWorkshop/scramjet/wiki">Documentation</a> | <a href="https://scramjet.mercurywork.shop">Playground</a> | <a href="https://discord.gg/tmApqGqfX2">Discord</a>
+
+[Documentation](https://github.com/StringShot/Proxswera/tree/main/docs) |
+[Development guide](https://github.com/StringShot/Proxswera/blob/main/docs/DEVELOPMENT.md) |
+[Project progress](https://github.com/StringShot/Proxswera/blob/main/docs/PROJECT-STATUS.md) |
+[Upstream documentation](https://github.com/MercuryWorkshop/scramjet/wiki) |
+[Upstream community](https://discord.gg/tmApqGqfX2)
+
 </div>
 
-## Supported Sites
+## Features and compatibility
 
-Some of the popular websites that Scramjet supports include:
+Proxswera inherits the Scramjet engine's browser interception, request rewriting, sandboxing, service-worker, and Wisp transport architecture. The upstream project lists compatibility examples including Google, YouTube, Instagram, ChatGPT, Reddit, X/Twitter, Discord, Spotify, GeForce NOW, and now.gg.
 
-- [Google](https://google.com)
-- [Youtube](https://youtube.com)
-- [Instagram](https://instagram.com)
-- [ChatGPT](https://chatgpt.com)
-- [Reddit](https://reddit.com)
-- [Twitter](https://twitter.com)
-- [Discord](https://discord.com)
-- [Spotify](https://spotify.com)
-- [GeForce NOW](https://play.geforcenow.com/)
-- [now.gg](https://now.gg)
+These are inherited upstream examples, not a guarantee that every site or feature currently works in every Proxswera deployment. Compatibility depends on the browser, target site, network, and exact build.
 
-## Development
+## Run Proxswera locally
 
-### Dependencies
+### Requirements
 
-- Recent versions of `node.js` and `pnpm`
-- `rustup`
-- `wasm-bindgen`
-- [Binaryen's `wasm-opt`](https://github.com/WebAssembly/binaryen)
-- [this `wasm-snip` fork](https://github.com/r58Playz/wasm-snip)
+- Git (with submodule support)
+- Node.js **22.18 or newer, but below 25**
+- Corepack and pnpm **10.12.1**
+- Rust toolchain via rustup, including the WebAssembly target
+- `wasm-bindgen-cli` **0.2.105**
+- Binaryen's `wasm-opt`
+- The [r58Playz wasm-snip fork](https://github.com/r58Playz/wasm-snip)
 
-#### Building
+The rewriter build uses Rust and WebAssembly tooling. On Windows, use WSL or Git Bash and ensure the Rust toolchain is available in that environment.
 
-- Clone the repository with `git clone --recursive https://github.com/MercuryWorkshop/scramjet`
-- Install the dependencies with `pnpm i`
-- Change directories with `cd packages/core`
-- Build the rewriter with `pnpm rewriter:build`
-- Build Scramjet with `pnpm build`
+### Clone and install
 
-### Running Scramjet Locally
+```sh
+git clone --recurse-submodules https://github.com/StringShot/Proxswera.git
+cd Proxswera
+corepack enable
+corepack prepare pnpm@10.12.1 --activate
+pnpm install
+```
 
-You can run the Scramjet dev server when running this command at the root
+### Build the WebAssembly rewriter
+
+Run from the repository root:
+
+```sh
+pnpm --filter @mercuryworkshop/scramjet rewriter:build
+```
+
+The Scramjet package retains its upstream npm/workspace name intentionally for compatibility and attribution.
+
+### Start the development server
 
 ```sh
 pnpm dev
 ```
 
-The demo page for scramjet should now be running at <http://localhost:4141> and should rebuild upon a file being changed (excluding the rewriter).
+Open **http://localhost:4141**. The development server runs the Vite-powered demo and Rspack build/watch process. Rebuild the rewriter after changing its Rust source; it is not automatically rebuilt by the normal development watcher.
+
+To use a different port:
+
+```sh
+PORT=4142 pnpm dev
+```
+
+PowerShell equivalent:
+
+```powershell
+$env:PORT = "4142"
+pnpm dev
+```
+
+### Run the production container locally
+
+```sh
+docker build -t proxswera .
+docker run --rm -p 10000:10000 -e NODE_ENV=production -e PORT=10000 proxswera
+```
+
+Open **http://localhost:10000**. The production runtime exposes `/healthz`; Wisp WebSocket traffic uses the same host. Production mode intentionally blocks loopback and private-network proxy destinations.
+
+## Project documentation
+
+- [Project status and work completed](docs/PROJECT-STATUS.md) — infrastructure, AI maintenance, testing, hardware acceleration research, and known gaps.
+- [Development guide](docs/DEVELOPMENT.md)
+- [Platform architecture](docs/PLATFORM-ARCHITECTURE.md)
+- [AI project memory](docs/AI-PROJECT-MEMORY.md)
+- [Collaborative AI maintenance](docs/AI-MULTI-AGENT.md)
+- [Cloud Run previews](docs/CLOUD-RUN-PREVIEWS.md)
+
+## Upstream project and licensing
+
+Proxswera is based on [MercuryWorkshop/Scramjet](https://github.com/MercuryWorkshop/scramjet). Keep upstream attribution, copyright notices, package identifiers, and licence terms intact when modifying or redistributing inherited components. Consult the repository's licence and notices before reuse or redistribution.
+
+## Contributing
+
+Contributions are welcome through issues and pull requests. Please include a clear explanation, tests or reproduction steps, and provenance/licence information when adapting third-party work. Production deployments, database changes, traffic cutovers, and other high-impact operations require explicit maintainer approval.
