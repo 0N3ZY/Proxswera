@@ -1,7 +1,7 @@
 {
-  "name": "scramjet-root",
+  "name": "proxswera-root",
   "version": "1.0.0",
-  "description": "Scramjet Proxy optimized for Render",
+  "description": "Proxswera web proxy runtime and development workspace",
   "type": "module",
   "scripts": {
     "dev": "tsx devserver.ts",
