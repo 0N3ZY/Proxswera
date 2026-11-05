@@ -1,0 +1,182 @@
+name: AI Upstream Optimisation
+
+on:
+  workflow_run:
+    workflows: ["Upstream Scramjet Sync"]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: scramjet-ai-upstream-optimisation
+  cancel-in-progress: false
+
+jobs:
+  optimise-upstream:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out trusted fork main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+
+      - name: Find the open upstream sync pull request
+        id: candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          SINCE="$(date -u -d '30 minutes ago' +%s)"
+          PR_LIST="$(gh pr list --repo "$GH_REPO" --base main --state open --json number,headRefName,headRepository,createdAt)"
+          PR="$(printf '%s' "$PR_LIST" | jq --arg since "$SINCE" --arg repo "$GH_REPO" '[.[] | select(.headRepository.nameWithOwner == $repo and (.headRefName | startswith("upstream-sync/")) and ((.createdAt | fromdateiso8601) >= ($since | tonumber)))] | sort_by(.number) | last // empty')"
+          if [ -z "$PR" ]; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          BRANCH="$(printf '%s' "$PR" | jq -r .headRefName)"
+          NUMBER="$(printf '%s' "$PR" | jq -r .number)"
+          EXISTING_AI="$(gh pr list --repo "$GH_REPO" --base "$BRANCH" --state open --json headRefName --jq '[.[] | select(.headRefName | startswith("ai-optimise/"))] | length')"
+          if [ "$EXISTING_AI" -gt 0 ]; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "An AI optimisation PR is already open for $BRANCH."
+            exit 0
+          fi
+          {
+            echo "found=true"
+            echo "branch=$BRANCH"
+            echo "number=$NUMBER"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Prepare isolated upstream candidate
+        if: steps.candidate.outputs.found == 'true'
+        env:
+          UPSTREAM_BRANCH: ${{ steps.candidate.outputs.branch }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          AUTH_HEADER="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          git -c http.extraheader="AUTHORIZATION: basic $AUTH_HEADER" fetch origin "$UPSTREAM_BRANCH:refs/remotes/origin/$UPSTREAM_BRANCH"
+          git worktree add candidate "origin/$UPSTREAM_BRANCH"
+          git diff --no-ext-diff --binary origin/main..."origin/$UPSTREAM_BRANCH" > /tmp/upstream.diff
+          if [ ! -s /tmp/upstream.diff ]; then
+            echo "Upstream sync has no diff to review."
+            exit 1
+          fi
+
+      - name: Discover reusable implementations across code hosts
+        if: steps.candidate.outputs.found == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REUSE_SEARCH_TERMS: "web proxy;browser proxy;service worker proxy;websocket proxy;Wisp;Scramjet browser;Cursor rules;Cursor extensions"
+          REUSE_MAX_REPOS: "5"
+          REUSE_REPOSITORIES: ${{ vars.REUSE_REPOSITORIES }}
+        run: |
+          node .github/scripts/discover-reuse.mjs /tmp/reuse-research.json
+
+      - name: Ask the AI team for evidence-based optimisations
+        id: ai
+        if: steps.candidate.outputs.found == 'true'
+        continue-on-error: true
+        working-directory: candidate
+        env:
+          AI_TASK_MODE: optimize
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_MODEL: openai/gpt-oss-120b
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-3.8-flash
+          OR_API_KEY: ${{ secrets.OR_API_KEY || secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL: openrouter/free
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          MISTRAL_MODEL: mistral-small-latest
+          CF_API_KEY: ${{ secrets.CF_API_KEY || secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_MODEL: "@cf/zai-org/glm-4.7-flash"
+        run: |
+          node ../.github/scripts/ai-team.mjs /tmp/upstream.diff /tmp/reuse-research.json > /tmp/optimise.patch
+
+      - name: Apply and deterministically verify optimisation
+        id: verify
+        if: steps.ai.outcome == 'success'
+        working-directory: candidate
+        run: |
+          set -euo pipefail
+          git apply --check /tmp/optimise.patch
+          git apply /tmp/optimise.patch
+          git add -N -- .
+          git diff --check
+          node ../.github/scripts/verify-ai-patch.mjs
+
+      - name: Build optimised production image
+        if: steps.verify.outcome == 'success'
+        working-directory: candidate
+        run: docker build --progress=plain -t scramjetfork-ai-optimised .
+
+      - name: Test optimised runtime
+        if: steps.verify.outcome == 'success'
+        working-directory: candidate
+        run: |
+          set -euo pipefail
+          docker run -d --name scramjetfork-ai-optimised -e NODE_ENV=production -e PORT=10000 -p 10000:10000 scramjetfork-ai-optimised
+          cleanup() { docker rm -f scramjetfork-ai-optimised >/dev/null 2>&1 || true; }
+          trap cleanup EXIT
+          for attempt in $(seq 1 30); do
+            : "$attempt"
+            if curl --fail --silent http://127.0.0.1:10000/healthz | grep -q '^ok$'; then break; fi
+            sleep 2
+          done
+          curl --fail --show-error http://127.0.0.1:10000/healthz
+          docker exec --user root scramjetfork-ai-optimised ln -s /etc/passwd /app/packages/demo/dist/__outside.txt
+          docker cp ../scripts/smoke-runtime.mjs scramjetfork-ai-optimised:/tmp/smoke-runtime.mjs
+          docker exec --user node scramjetfork-ai-optimised node /tmp/smoke-runtime.mjs
+
+      - name: Open optimisation pull request and dispatch full CI
+        if: steps.verify.outcome == 'success'
+        working-directory: candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          UPSTREAM_BRANCH: ${{ steps.candidate.outputs.branch }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then
+            echo "No optimisation changes were produced."
+            exit 0
+          fi
+
+          UPSTREAM_SHA="$(git rev-parse HEAD)"
+          AI_BRANCH="ai-optimise/upstream-${UPSTREAM_SHA:0:12}-${RUN_ID}"
+          git switch -c "$AI_BRANCH"
+          git add -A
+          git commit -m "AI optimisation: improve upstream Scramjet changes"
+          gh auth setup-git
+          git push origin "$AI_BRANCH"
+
+          gh pr create \
+            --repo "$GH_REPO" \
+            --head "$AI_BRANCH" \
+            --base "$UPSTREAM_BRANCH" \
+            --title "AI optimisation: review upstream Scramjet update" \
+            --body "The multi-provider AI team proposed evidence-based optimisations on top of the upstream sync PR. The patch passed deterministic path/secret/security checks, a production Docker build, and runtime smoke tests. Full CI and the Render runtime workflow were dispatched separately. Human review is required; this PR is not auto-merged."
+
+          gh workflow run main.yml --repo "$GH_REPO" --ref "$AI_BRANCH"
+          gh workflow run render-runtime-check.yml --repo "$GH_REPO" --ref "$AI_BRANCH"
+
+      - name: Report skipped optimisation
+        if: steps.candidate.outputs.found == 'true' && steps.ai.outcome != 'success'
+        run: |
+          echo "::notice::No safe AI optimisation was produced. The upstream sync PR remains available for normal CI and human review."

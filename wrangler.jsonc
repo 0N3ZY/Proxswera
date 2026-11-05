@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "scramjetfork",
+  "main": "worker/worker.js",
+  "compatibility_date": "2026-11-05",
+  "workers_dev": false,
+  "preview_urls": false,
+  "vars": {
+    "RENDER_ORIGIN": "https://scramjetfork.onrender.com"
+  },
+  "previews": {
+    "vars": {
+      "RENDER_ORIGIN": "https://scramjetfork-pr-1.onrender.com"
+    }
+  },
+  "observability": { "enabled": false }
+}

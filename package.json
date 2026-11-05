@@ -5,20 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "tsx devserver.ts",
-    "start": "tsx devserver.ts"
+    "start": "tsx devserver.ts",
+    "test:package": "ava tests/ci/packageValidation.js"
   },
   "engines": {
-    "node": ">=22.18.0"
+    "node": ">=22.18.0 <25"
   },
   "dependencies": {
-    "@fastify/deepmerge": "^3.2.1",
     "@mercuryworkshop/wisp-js": "catalog:",
-    "chafa-wasm": "^0.3.1",
-    "chalk": "^5.6.2",
-    "glob": "^13.0.6",
-    "prettier": "^3.6.2",
-    "groq-sdk": "^0.9.0",
-    "@google/generative-ai": "^0.21.0",
     "tsx": "^4.20.6"
   },
   "devDependencies": {
@@ -29,7 +23,13 @@
     "tsc-alias": "^1.8.16",
     "vite": "^7.3.0",
     "ava": "^6.4.1",
-    "eslint": "^10.2.0"
+    "eslint": "^10.2.0",
+    "@fastify/deepmerge": "^3.2.1",
+    "chafa-wasm": "^0.3.1",
+    "chalk": "^5.6.2",
+    "glob": "^13.0.6",
+    "prettier": "^3.6.2",
+    "wrangler": "^4.135.0"
   },
   "packageManager": "pnpm@10.12.1"
 }

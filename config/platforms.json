@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "application": "scramjetfork",
+  "policy": {
+    "discovery": "environment-and-health",
+    "unknownProvider": "disabled",
+    "fallback": "fail-closed-for-stateful-and-authenticated-work",
+    "productionChangesRequireApproval": true,
+    "analytics": false,
+    "paidPlanUpgrades": false
+  },
+  "providers": {
+    "github": {
+      "kind": "source-control",
+      "capabilities": [
+        "source-of-truth",
+        "pull-requests",
+        "ci",
+        "release-gates",
+        "provenance"
+      ],
+      "trafficRole": "control-plane",
+      "runtimeTraffic": false,
+      "required": true
+    },
+    "vercel": {
+      "kind": "frontend-platform",
+      "capabilities": [
+        "static-frontend",
+        "cdn",
+        "preview-deployments"
+      ],
+      "trafficRole": "frontend",
+      "runtimeTraffic": true,
+      "required": false,
+      "environment": {
+        "origin": "VERCEL_FRONTEND_ORIGIN"
+      }
+    },
+    "cloudflare": {
+      "kind": "edge-platform",
+      "capabilities": [
+        "public-ingress",
+        "request-routing",
+        "firewall",
+        "cache",
+        "edge-health"
+      ],
+      "trafficRole": "edge",
+      "runtimeTraffic": true,
+      "required": false,
+      "environment": {
+        "workerOrigin": "CLOUDFLARE_WORKER_ORIGIN",
+        "renderOrigin": "RENDER_ORIGIN",
+        "vercelOrigin": "VERCEL_FRONTEND_ORIGIN"
+      }
+    },
+    "render": {
+      "kind": "application-runtime",
+      "capabilities": [
+        "node-runtime",
+        "wisp-websocket",
+        "long-lived-http",
+        "health-checks"
+      ],
+      "trafficRole": "runtime",
+      "runtimeTraffic": true,
+      "required": true,
+      "environment": {
+        "origin": "RENDER_ORIGIN"
+      }
+    },
+    "supabase": {
+      "kind": "managed-data-platform",
+      "capabilities": [
+        "postgres",
+        "auth",
+        "storage",
+        "realtime",
+        "vectors"
+      ],
+      "trafficRole": "data",
+      "runtimeTraffic": false,
+      "required": false,
+      "environment": {
+        "url": "SUPABASE_URL",
+        "publishableKey": "SUPABASE_PUBLISHABLE_KEY",
+        "serverSecret": "SUPABASE_SECRET_KEY"
+      },
+      "security": {
+        "serverSecretServerSideOnly": true,
+        "rlsRequiredForExposedTables": true,
+        "neverUseUserMetadataForAuthorization": true
+      }
+    },
+    "cloud-run": {
+      "kind": "preview-runtime",
+      "capabilities": [
+        "container-runtime",
+        "preview-deployments",
+        "tagged-revisions",
+        "no-traffic-rollouts",
+        "scale-to-zero"
+      ],
+      "trafficRole": "preview",
+      "runtimeTraffic": false,
+      "required": false,
+      "environment": {
+        "previewOrigin": "CLOUD_RUN_PREVIEW_ORIGIN"
+      },
+      "deployment": {
+        "trigger": "manual-workflow-dispatch",
+        "authentication": "github-oidc-workload-identity-federation",
+        "productionTraffic": false,
+        "minimumInstances": 0,
+        "maximumInstances": 1,
+        "requiresExistingService": true,
+        "requiresExistingArtifactRegistry": true,
+        "publicAccessChanges": false
+      }
+    }
+  },
+  "routes": [
+    {
+      "match": "/*",
+      "destination": "render",
+      "protocols": [
+        "websocket"
+      ],
+      "cache": false,
+      "reason": "Wisp uses a WebSocket and must reach the persistent runtime."
+    },
+    {
+      "match": "/api/*",
+      "destination": "render",
+      "protocols": [
+        "http",
+        "https"
+      ],
+      "cache": false,
+      "reason": "Application APIs remain on the application runtime."
+    },
+    {
+      "match": "/healthz",
+      "destination": "render",
+      "protocols": [
+        "http",
+        "https"
+      ],
+      "cache": false,
+      "reason": "Runtime health reflects the Render service."
+    },
+    {
+      "match": "/__edge/health",
+      "destination": "cloudflare",
+      "protocols": [
+        "http",
+        "https"
+      ],
+      "cache": false,
+      "reason": "Edge health is handled by the Worker."
+    },
+    {
+      "match": "/*",
+      "destination": "vercel",
+      "protocols": [
+        "http",
+        "https"
+      ],
+      "cache": "static-assets-only",
+      "reason": "Frontend navigation and static assets use Vercel when configured."
+    }
+  ],
+  "developmentTools": {
+    "context7": {
+      "kind": "documentation-tool",
+      "scope": "development-time",
+      "capabilities": [
+        "versioned-library-documentation",
+        "api-reference",
+        "current-examples"
+      ]
+    },
+    "superpowers": {
+      "kind": "engineering-workflow-tool",
+      "scope": "development-time",
+      "capabilities": [
+        "brainstorming",
+        "planning",
+        "test-driven-development",
+        "debugging",
+        "code-review",
+        "verification"
+      ]
+    }
+  },
+  "releaseChannels": {
+    "stable": {
+      "default": true,
+      "optIn": false,
+      "productionTraffic": true,
+      "promotionRequiresApproval": true
+    },
+    "beta": {
+      "default": false,
+      "optIn": true,
+      "provider": "cloud-run",
+      "productionTraffic": false,
+      "autoPromotion": false
+    },
+    "experimental": {
+      "default": false,
+      "optIn": true,
+      "provider": "cloud-run",
+      "productionTraffic": false,
+      "autoPromotion": false
+    }
+  }
+}
