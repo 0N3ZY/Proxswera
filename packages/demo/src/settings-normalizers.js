@@ -11,7 +11,8 @@ export function normalizeWispUrl(
   if (/^https?:\/\//i.test(normalized)) {
     normalized = normalized.replace(/^http/i, "ws");
   } else if (!/^wss?:\/\//i.test(normalized)) {
-    if (/^[a-z][a-z\d+.-]*:/i.test(normalized)) {
+    const isHostAndPort = /^[^/:]+:\d+(?:\/|$|\?)/.test(normalized);
+    if (/^[a-z][a-z\d+.-]*:/i.test(normalized) && !isHostAndPort) {
       throw new TypeError("Wisp URL must use ws:// or wss://.");
     }
     const protocol = pageProtocol === "https:" ? "wss:" : "ws:";
