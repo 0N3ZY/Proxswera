@@ -15,12 +15,14 @@ concurrency:
 
 jobs:
   build-and-repair:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - name: Check out repository
+      - name: Check out trusted main branch
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
           persist-credentials: false
 
@@ -136,14 +138,9 @@ jobs:
             --head "$BRANCH" \
             --base main \
             --title "AI repair: verified build fix" \
-            --body "The AI maintenance workflow proposed a repair after a failed production build or health check. The patch passed deterministic path, secret-leak, security-downgrade, whitespace, production Docker-build, and runtime smoke checks. Application and protected-area changes require human review; no security-sensitive code is auto-merged."
+            --body "The AI maintenance workflow proposed a repair after a failed production build or health check. The patch passed deterministic path, secret-leak, security-downgrade, whitespace, production Docker-build, and runtime smoke checks. Every AI-generated repair requires human review and explicit manual merging."
 
-          if git diff-tree --no-commit-id --name-only -r HEAD | grep -Ev '(^README\.md$|^docs/.*\.md$|\.md$)' >/dev/null; then
-            echo "Changes include application code; human approval is required."
-          else
-            echo "Documentation-only patch; enabling auto-merge after required checks."
-            gh pr merge "$BRANCH" --repo "$GH_REPO" --auto --squash
-          fi
+          echo "All AI repair pull requests require human review; no automatic merge is permitted."
 
       - name: Report AI repair unavailable
         if: (steps.build.outcome == 'failure' || steps.health.outcome == 'failure') && steps.ai.outcome == 'failure'
