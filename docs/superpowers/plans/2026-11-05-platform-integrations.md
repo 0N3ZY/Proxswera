@@ -1,8 +1,8 @@
-# Platform Integrations Implementation Plan
+# Proxswera Platform Integrations Implementation Plan
 
 > For agentic workers: implement task-by-task with test-first changes on the existing PR branch.
 
-**Goal:** Connect Scramjet's current providers and add a safe, opt-in Cloud Run beta-preview path.
+**Goal:** Connect Proxswera's current providers and add a safe, opt-in Cloud Run beta-preview path.
 
 **Architecture:** Keep provider roles explicit in the machine-readable registry. Cloud Run is a preview-only runtime using tagged revisions with no production traffic; Context7 and Superpowers remain development-time capabilities.
 
