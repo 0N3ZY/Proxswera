@@ -14,3 +14,17 @@ test("Cloudflare config keeps the disabled workers.dev endpoint and preview URLs
   assert.equal(config.workers_dev, false);
   assert.equal(config.preview_urls, false);
 });
+
+
+test("workspace declares pnpm and pins Wrangler for Workers Builds", async () => {
+  const pkg = JSON.parse(await readFile(new URL("../../package.json", import.meta.url), "utf8"));
+  assert.match(pkg.packageManager, /^pnpm@\d+\.\d+\.\d+$/);
+  assert.match(pkg.devDependencies.wrangler, /^\^?4\./);
+});
+
+test("pnpm workspace does not retain a stale npm lockfile", async () => {
+  await assert.rejects(
+    readFile(new URL("../../package-lock.json", import.meta.url)),
+    { code: "ENOENT" },
+  );
+});
