@@ -16,6 +16,16 @@ This guide describes the repository's current local development path.
 
 Rust/WebAssembly tools are needed to build the rewriter. A normal frontend edit does not necessarily require rebuilding it.
 
+Install the matching toolchain and binaries:
+
+```sh
+rustup toolchain install nightly --component rust-src --target wasm32-unknown-unknown
+cargo install wasm-bindgen-cli --version 0.2.105
+cargo install --git https://github.com/r58playz/wasm-snip
+```
+
+Install [Binaryen](https://github.com/WebAssembly/binaryen) for your OS and confirm `wasm-opt` is available on `PATH`. The build script specifically invokes `cargo +nightly` and requires wasm-bindgen-cli 0.2.105.
+
 ## First-time setup
 
 ```sh
