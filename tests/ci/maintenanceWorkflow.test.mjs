@@ -23,3 +23,21 @@ test("Cloudflare production deployment is manual and explicitly confirmed", asyn
   assert.doesNotMatch(source, /^\s*push:/m);
   assert.doesNotMatch(source, /^\s*schedule:/m);
 });
+
+test("manual Cloudflare production deployment is restricted to trusted main", async () => {
+  const source = await workflow("cloudflare-pages.yml");
+  assert.match(source, /github\.ref\s*==\s*['"]refs\/heads\/main['"]/);
+});
+
+test("upstream AI optimisation only processes trusted main-branch syncs", async () => {
+  const source = await workflow("upstream-ai-optimise.yml");
+  assert.match(source, /branches:\s*\[main\]/);
+  assert.match(source, /headRepository\.nameWithOwner\s*==\s*\$repo/);
+});
+
+test("runtime smoke checks run when routing registry or Worker files change", async () => {
+  const source = await workflow("render-runtime-check.yml");
+  for (const path of ["worker/**", "config/**", "platforms/**", "wrangler.jsonc", ".dockerignore"]) {
+    assert.ok(source.includes(path), `Runtime workflow should watch ${path}`);
+  }
+});
