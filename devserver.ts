@@ -90,6 +90,20 @@ async function startProductionServer() {
       return;
     }
 
+    if (pathname === "/__platforms") {
+      const { discoverPlatforms } = await import("./platforms/discovery.js");
+      const platforms = discoverPlatforms();
+      const body = JSON.stringify({ application: "scramjetfork", platforms });
+      res.writeHead(200, {
+        "Content-Type": "application/json; charset=utf-8",
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+        "Content-Length": Buffer.byteLength(body),
+      });
+      res.end(req.method === "HEAD" ? undefined : body);
+      return;
+    }
+
     if (pathname === "/healthz") {
       res.writeHead(200, {
         "Content-Type": "text/plain; charset=utf-8",
