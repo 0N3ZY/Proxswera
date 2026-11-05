@@ -19,3 +19,27 @@ test("production releases and GitHub Pages require explicit manual confirmation"
       job + " must require explicit production-release confirmation");
   }
 });
+
+
+test("release jobs use only the GitHub permissions they need", () => {
+  const lines = source.split("\n");
+  const section = (job) => {
+    const start = lines.findIndex((line) => line === "  " + job + ":");
+    assert.notEqual(start, -1, "Expected " + job + " job");
+    let end = lines.findIndex((line, index) => index > start && /^  [a-zA-Z0-9_-]+:$/.test(line));
+    if (end === -1) end = lines.length;
+    return lines.slice(start, end).join("\n");
+  };
+  const upload = section("upload");
+  const publish = section("publish");
+  const pages = section("pages");
+  for (const job of [upload, publish, pages]) {
+    assert.doesNotMatch(job, /permissions:\s*write-all/);
+  }
+  assert.match(upload, /contents:\s*write/);
+  assert.match(upload, /actions:\s*read/);
+  assert.match(publish, /id-token:\s*write/);
+  assert.match(publish, /actions:\s*read/);
+  assert.match(pages, /pages:\s*write/);
+  assert.match(pages, /id-token:\s*write/);
+});
