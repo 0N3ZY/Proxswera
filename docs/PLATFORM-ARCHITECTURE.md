@@ -1,6 +1,6 @@
-# Platform-aware Scramjet architecture
+# Platform-aware Proxswera architecture
 
-This document defines the platform responsibilities and traffic contract for Scramjet. The machine-readable source of truth is `config/platforms.json`.
+This document defines the platform responsibilities and traffic contract for Proxswera. The machine-readable source of truth is `config/platforms.json`.
 
 ## Platform roles
 
