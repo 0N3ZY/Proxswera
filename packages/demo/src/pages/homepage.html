@@ -87,7 +87,7 @@
 			<p class="meta">
 				Engine version {{SCRAMJET_VERSION}} |
 				<a
-					href="https://github.com/MercuryWorkshop/scramjet/commit/{{SCRAMJET_BUILD}}"
+					href="https://github.com/MercuryWorkshop/Proxswera/commit/{{SCRAMJET_BUILD}}"
 					target="_blank"
 					>Build {{SCRAMJET_BUILD}}</a
 				>
@@ -97,11 +97,9 @@
 			<section class="section">
 				<p>
 					<a href="https://github.com/StringShot/Proxswera" target="_blank"
-						><strong>Scramjet</strong></a
+						><strong>Proxswera</strong></a
 					>
-					is an experimental <strong>interception-based web proxy</strong>,
-					designed to evade internet censorship and bypass arbitrary browser
-					restrictions.<br /><br />
+					is an open-source <strong>browser and web proxy</strong> built upon the Scramjet engine, designed to help users access the open web in environments affected by internet censorship and network restrictions.<br /><br />
 					The underlying Scramjet engine can sandbox web content, bypass CORS
 					restrictions on loading websites, and instrument and debug websites
 					inside the browser itself. This is accomplished through a combination
@@ -114,12 +112,12 @@
 					>.<br /><br />
 					If you're interested in contributing to Proxswera, or want to build
 					your own web proxy or application using it, you should check out the
-					<a href="https://github.com/MercuryWorkshop/scramjet" target="_blank"
+					<a href="https://github.com/StringShot/Proxswera" target="_blank"
 						><strong>GitHub repository</strong></a
 					>.<br /><br />
-					This website is a demo of scramjet's capabilities, letting you browse
-					the web proxied through scramjet, inspect how scramjet rewrites
-					requests and responses, and see how scramjet handles your custom
+					This website is a demo of Proxswera's capabilities, letting you browse
+					the web proxied through Proxswera, inspect how Proxswera rewrites
+					requests and responses, and see how Proxswera handles your custom
 					content in the playground.
 				</p>
 			</section>
@@ -128,8 +126,8 @@
 				<span class="label">Browser</span>
 				<p>
 					Try entering a URL in the box above to browse the web proxied through
-					scramjet.<br />
-					All traffic sent through scramjet is
+					Proxswera.<br />
+					All traffic sent through Proxswera is
 					<strong>fully end-to-end encrypted</strong> with TLS, powered by
 					<a href="https://github.com/ading2210/libcurl.js" target="_blank"
 						><strong>libcurl.js</strong></a
@@ -158,7 +156,7 @@
 				<p>
 					The playground lets you write your own html/css/js snippets which will
 					be run inside the Scramjet sandbox used by Proxswera. Your files are "served" by
-					scramjet from a fake origin, which can be configured to be any URL.
+					Proxswera from a fake origin, which can be configured to be any URL.
 					Notice that if you add a <code>console.log(location.href)</code> in
 					your code, the page will really be running on the fake origin.
 				</p>
