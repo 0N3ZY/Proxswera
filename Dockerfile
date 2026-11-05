@@ -47,7 +47,7 @@ COPY --from=build /app/packages/utils/package.json ./packages/utils/package.json
 COPY --from=build /app/packages/demo/package.json ./packages/demo/package.json
 COPY --from=build /app/packages/bootstrap/package.json ./packages/bootstrap/package.json
 COPY --from=build /app/packages/create-proxy-app/package.json ./packages/create-proxy-app/package.json
-RUN pnpm install --prod --filter scramjet-root --no-frozen-lockfile \
+RUN pnpm install --prod --filter proxswera-root --no-frozen-lockfile \
     && rm -f pnpm-lock.yaml \
     && rm -rf /root/.cache/node/corepack /root/.local/share/pnpm/store
 
