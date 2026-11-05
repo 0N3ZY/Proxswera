@@ -19,19 +19,21 @@ export function discoverPlatforms(env = process.env) {
     render: isHttpsOrigin(env.RENDER_ORIGIN) || Boolean(env.RENDER_EXTERNAL_HOSTNAME) || env.NODE_ENV === "development",
     supabase: isHttpsOrigin(env.SUPABASE_URL) &&
       Boolean(env.SUPABASE_PUBLISHABLE_KEY || env.SUPABASE_SECRET_KEY || env.SUPABASE_SERVICE_ROLE_KEY),
+    "cloud-run": isHttpsOrigin(env.CLOUD_RUN_PREVIEW_ORIGIN),
   };
 
   return Object.entries(platformConfig.providers).map(([name, provider]) => ({
     name,
     kind: provider.kind,
     trafficRole: provider.trafficRole,
-    available: configured[name] ?? false,
+    configured: configured[name] ?? false,
+    health: configured[name] ? "not-checked" : "not-configured",
     capabilities: [...provider.capabilities],
   }));
 }
 
 export function selectPlatform(capability, env = process.env) {
   return discoverPlatforms(env).find(
-    (provider) => provider.available && provider.capabilities.includes(capability),
+    (provider) => provider.configured && provider.capabilities.includes(capability),
   ) ?? null;
 }
