@@ -37,7 +37,7 @@ The repository contains CI checks, package-structure checks, workflow policy tes
 
 Runtime smoke coverage includes HTTP and HEAD requests, static assets, SPA fallback, missing assets, path traversal, symlink escapes, unsupported methods, and a Wisp WebSocket handshake.
 
-Earlier revisions of the maintenance PR recorded successful CI and Docker/runtime smoke runs. The latest PR head must be checked separately; an earlier successful run does not certify later commits. No production merge or production deployment is implied by those test results.
+Earlier revisions of the maintenance PR recorded successful CI and Docker/runtime smoke runs. In the most recent inspected CI run (42072049733), build, package validation, frontend, rewriter, and application test jobs succeeded; the generated-lockfile housekeeping job failed because GitHub rejected its push under a repository rule waiting for Code Scanning results. The current final PR head has no fresh GitHub Actions check run yet, and its Vercel status is rate-limited (retry window 24 hours). Earlier successful jobs do not certify later commits. No production merge or production deployment is implied by those test results.
 
 ## Hardware acceleration and device optimisation
 
@@ -59,7 +59,7 @@ A browser application cannot install GPU drivers or directly control a graphics 
 | --- | --- |
 | **GitHub** | Primary source repository, pull requests, Actions CI, maintenance workflows, upstream sync, AI repair/review and provenance records. |
 | **Render** | Primary Node/Wisp runtime target. Production and PR-preview services exist under legacy `scramjetfork` service names. Docker build/runtime smoke validation has been performed; production settings and traffic have intentionally not been changed as part of this rebrand. |
-| **Vercel** | Frontend build/deployment platform investigated and connected to the repository. The project was paused after a build issue involving `packages/core/rewriter/wasm/rewriter_bg.wasm`. It is not a verified live frontend route. |
+| **Vercel** | Frontend build/deployment platform investigated and connected to the repository. The project was paused after a build issue involving `packages/core/rewriter/wasm/rewriter_bg.wasm`. The latest inspected Vercel status also reported a deployment rate limit with a 24-hour retry window. It is not a verified live frontend route. |
 | **Cloudflare Workers** | Worker routing code and Wrangler configuration exist. The existing account Worker was a dashboard-generated Hello World rather than a verified Proxswera edge deployment; the account's `workers.dev` subdomain was disabled. No production edge cutover has occurred. |
 | **Cloudflare Pages** | A deployment workflow exists, but the intended frontend split-routing path is not verified end to end. |
 | **Supabase** | A project exists for future data/auth/storage capabilities. At the recorded inspection it was healthy but had no application tables; no application schema or production data integration had been completed. |
