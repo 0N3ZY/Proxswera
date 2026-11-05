@@ -12,14 +12,24 @@
   "providers": {
     "github": {
       "kind": "source-control",
-      "capabilities": ["source-of-truth", "pull-requests", "ci", "release-gates", "provenance"],
+      "capabilities": [
+        "source-of-truth",
+        "pull-requests",
+        "ci",
+        "release-gates",
+        "provenance"
+      ],
       "trafficRole": "control-plane",
       "runtimeTraffic": false,
       "required": true
     },
     "vercel": {
       "kind": "frontend-platform",
-      "capabilities": ["static-frontend", "cdn", "preview-deployments"],
+      "capabilities": [
+        "static-frontend",
+        "cdn",
+        "preview-deployments"
+      ],
       "trafficRole": "frontend",
       "runtimeTraffic": true,
       "required": false,
@@ -29,7 +39,13 @@
     },
     "cloudflare": {
       "kind": "edge-platform",
-      "capabilities": ["public-ingress", "request-routing", "firewall", "cache", "edge-health"],
+      "capabilities": [
+        "public-ingress",
+        "request-routing",
+        "firewall",
+        "cache",
+        "edge-health"
+      ],
       "trafficRole": "edge",
       "runtimeTraffic": true,
       "required": false,
@@ -41,7 +57,12 @@
     },
     "render": {
       "kind": "application-runtime",
-      "capabilities": ["node-runtime", "wisp-websocket", "long-lived-http", "health-checks"],
+      "capabilities": [
+        "node-runtime",
+        "wisp-websocket",
+        "long-lived-http",
+        "health-checks"
+      ],
       "trafficRole": "runtime",
       "runtimeTraffic": true,
       "required": true,
@@ -51,7 +72,13 @@
     },
     "supabase": {
       "kind": "managed-data-platform",
-      "capabilities": ["postgres", "auth", "storage", "realtime", "vectors"],
+      "capabilities": [
+        "postgres",
+        "auth",
+        "storage",
+        "realtime",
+        "vectors"
+      ],
       "trafficRole": "data",
       "runtimeTraffic": false,
       "required": false,
@@ -69,39 +96,53 @@
   },
   "routes": [
     {
-      "match": "/wisp",
+      "match": "/*",
       "destination": "render",
-      "protocols": ["websocket"],
+      "protocols": [
+        "websocket"
+      ],
       "cache": false,
-      "reason": "Wisp sessions require the persistent Scramjet runtime."
+      "reason": "Wisp uses a WebSocket and must reach the persistent runtime."
     },
     {
       "match": "/api/*",
       "destination": "render",
-      "protocols": ["http", "https"],
+      "protocols": [
+        "http",
+        "https"
+      ],
       "cache": false,
-      "reason": "Application APIs and stateful runtime work stay on the application service."
+      "reason": "Application APIs remain on the application runtime."
     },
     {
       "match": "/healthz",
       "destination": "render",
-      "protocols": ["http", "https"],
+      "protocols": [
+        "http",
+        "https"
+      ],
       "cache": false,
-      "reason": "Runtime health must reflect the actual Render service."
+      "reason": "Runtime health reflects the Render service."
     },
     {
       "match": "/__edge/health",
       "destination": "cloudflare",
-      "protocols": ["http", "https"],
+      "protocols": [
+        "http",
+        "https"
+      ],
       "cache": false,
-      "reason": "Edge health checks the configured upstreams without exposing credentials."
+      "reason": "Edge health is handled by the Worker."
     },
     {
       "match": "/*",
       "destination": "vercel",
-      "protocols": ["http", "https"],
+      "protocols": [
+        "http",
+        "https"
+      ],
       "cache": "static-assets-only",
-      "reason": "The frontend is independently deployable and served from the frontend platform."
+      "reason": "Frontend navigation and static assets use Vercel when configured."
     }
   ]
-}
+}\n
