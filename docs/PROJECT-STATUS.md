@@ -37,7 +37,7 @@ The repository contains CI checks, package-structure checks, workflow policy tes
 
 Runtime smoke coverage includes HTTP and HEAD requests, static assets, SPA fallback, missing assets, path traversal, symlink escapes, unsupported methods, and a Wisp WebSocket handshake.
 
-Earlier revisions of the maintenance PR recorded successful CI and Docker/runtime smoke runs. In the most recent inspected CI run (42072049733), build, package validation, frontend, rewriter, and application test jobs succeeded; the generated-lockfile housekeeping job failed because GitHub rejected its push under a repository rule waiting for Code Scanning results. The current final PR head has no fresh GitHub Actions check run yet, and its Vercel status is rate-limited (retry window 24 hours). Earlier successful jobs do not certify later commits. No production merge or production deployment is implied by those test results.
+Earlier revisions of the maintenance PR recorded successful CI and Docker/runtime smoke runs. In the most recent inspected CI run (42072049733), build, package validation, frontend, rewriter, and application test jobs succeeded; the generated-lockfile housekeeping job failed because GitHub rejected its push under a repository rule waiting for Code Scanning results. The current final PR head has no fresh GitHub Actions check run yet, and its Vercel status is rate-limited (retry window 24 hours). GitHub also currently marks PR #1 as dirty/non-mergeable against main; that branch conflict must be resolved before merging. Earlier successful jobs do not certify later commits. No production merge or production deployment is implied by those test results.
 
 ## Hardware acceleration and device optimisation
 
