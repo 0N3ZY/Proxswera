@@ -62,7 +62,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
 
@@ -177,15 +177,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6.1.0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -220,49 +220,49 @@ jobs:
         working-directory: packages/create-proxy-app
 
       - name: Upload Artifact (scramjet/core)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: scramjet
           path: packages/core/dist/*
 
       - name: Upload Artifact (scramjet/core) (packaged)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: scramjet-package
           path: packages/core/mercuryworkshop-scramjet-*.tgz
 
       - name: Upload Artifact (scramjet/controller)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: scramjet-controller
           path: packages/controller/dist/*
 
       - name: Upload Artifact (scramjet/controller) (packaged)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: scramjet-controller-package
           path: packages/controller/mercuryworkshop-scramjet-controller-*.tgz
 
       - name: Upload Artifact (scramjet/utils)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: scramjet-utils
           path: packages/utils/dist/*
 
       - name: Upload Artifact (scramjet/utils) (packaged)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: scramjet-utils-package
           path: packages/utils/mercuryworkshop-scramjet-utils-*.tgz
 
       - name: Upload Artifact (proxy-bootstrap) (packaged)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: proxy-bootstrap-package
           path: packages/bootstrap/mercuryworkshop-proxy-bootstrap-*.tgz
 
       - name: Upload Artifact (create-proxy-app) (packaged)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: create-proxy-app-package
           path: packages/create-proxy-app/create-proxy-app-*.tgz
@@ -274,22 +274,22 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6.1.0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
         run: pnpm install
 
       - name: Get artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: scramjet-package
           path: packages/core
@@ -308,29 +308,29 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
           persist-credentials: false
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6.1.0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
         run: pnpm install
 
       - name: Get artifacts (scramjet/core)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: scramjet
           path: packages/core/dist
 
       - name: Get artifacts (scramjet/controller)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: scramjet-controller
           path: packages/controller/dist
@@ -350,7 +350,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
           persist-credentials: false
@@ -378,20 +378,23 @@ jobs:
 
     steps:
       - name: Delete old release and tag
-        uses: dev-drprasad/delete-tag-and-release@v1.1
-        with:
-          delete_release: true
-          tag_name: latest
-          github_token: ${{ github.token }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view latest --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release delete latest --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag
+          else
+            git push origin --delete latest 2>/dev/null || true
+          fi
 
       - name: Get artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: scramjet-package
           path: .
 
       - name: Get artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: scramjet-controller-package
           path: .
@@ -440,45 +443,45 @@ jobs:
 
     steps:
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6.1.0
         with:
           version: latest
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: "https://registry.npmjs.org"
 
       - name: Get artifacts (scramjet/core)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: scramjet-package
           path: .
 
       - name: Get artifacts (scramjet/controller)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: scramjet-controller-package
           path: .
 
       - name: Get artifacts (scramjet/utils)
         if: needs.version-check.outputs.utils_version_changed == 'true'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: scramjet-utils-package
           path: .
 
       - name: Get artifacts (proxy-bootstrap)
         if: needs.version-check.outputs.bootstrap_version_changed == 'true'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: proxy-bootstrap-package
           path: .
 
       - name: Get artifacts (create-proxy-app)
         if: needs.version-check.outputs.create_proxy_app_version_changed == 'true'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: create-proxy-app-package
           path: .
@@ -513,35 +516,35 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
           persist-credentials: false
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6.1.0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
         run: pnpm install
 
       - name: Get artifacts (scramjet/core)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: scramjet
           path: packages/core/dist
 
       - name: Get artifacts (scramjet/controller)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: scramjet-controller
           path: packages/controller/dist
 
       - name: Get artifacts (scramjet/utils)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: scramjet-utils
           path: packages/utils/dist
@@ -551,7 +554,7 @@ jobs:
         working-directory: packages/demo
 
       - name: Upload Artifact (frontend)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: frontend
           path: ./packages/demo/dist
@@ -572,19 +575,19 @@ jobs:
 
     steps:
       - name: Get artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: frontend
           path: .
 
       - name: Upload pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: .
 
       - name: Deploy to github
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
   validate-workflows:
     name: Validate GitHub Actions workflows
     runs-on: ubuntu-latest
@@ -592,11 +595,11 @@ jobs:
       contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version: "1.24"
           cache: false
