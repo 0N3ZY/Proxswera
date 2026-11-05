@@ -73,3 +73,6 @@ Context7 and Superpowers are development-time tools, not hosting providers. Cont
 Release channels are Stable (default), Beta (opt-in) and Experimental (opt-in). Beta/Experimental remain isolated from production traffic and are never automatically promoted.
 
 Provider discovery distinguishes configuration from health: a configured provider is marked "not-checked" until an actual health probe succeeds. It must not be presented as healthy based only on environment variables.
+
+
+The Cloud Run preview workflow and required Google Cloud preparation are documented in [Cloud Run previews](./CLOUD-RUN-PREVIEWS.md). The workflow is manual-only and remains inactive until its GitHub environment is configured and a run is explicitly confirmed.
