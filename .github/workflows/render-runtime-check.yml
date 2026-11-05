@@ -38,7 +38,7 @@ jobs:
           node --check .github/scripts/verify-ai-patch.mjs
           node --check scripts/smoke-runtime.mjs
           node --check worker/worker.js
-          node --test tests/ci/workerProxy.test.mjs
+          node --test tests/ci/workerProxy.test.mjs tests/ci/platformDiscovery.test.mjs
           node --check tests/ci/packageValidation.js
 
       - name: Build production image
