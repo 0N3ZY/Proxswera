@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { discoverPlatforms, selectPlatform } from "../../platforms/discovery.js";
 
 test("discovers Render as the runtime and selects it for Wisp", () => {
-  const selected = selectPlatform("wisp-websocket", {});
+  const selected = selectPlatform("wisp-websocket", { NODE_ENV: "development" });
   assert.equal(selected?.name, "render");
 });
 
