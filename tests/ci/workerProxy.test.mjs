@@ -86,13 +86,45 @@ test("falls back to Render for frontend requests until Vercel is configured", as
   }
 });
 
-test("rejects non-HTTPS or credential-bearing platform origins", async () => {
-  await assert.rejects(
-    worker.fetch(new Request("https://edge.example.test/api/"), {
+test("returns a structured 503 when the selected Render origin is invalid", async () => {
+  const response = await worker.fetch(new Request("https://edge.example.test/api/"), {
+    RENDER_ORIGIN: "http://127.0.0.1:4141",
+  });
+  assert.equal(response.status, 503);
+  assert.deepEqual(await response.json(), {
+    error: "The selected platform is not configured.",
+  });
+});
+
+test("keeps Vercel frontend traffic available when the Render origin is invalid", async () => {
+  const originalFetch = globalThis.fetch;
+  let captured;
+  globalThis.fetch = async (request) => {
+    captured = request;
+    return new Response("frontend-ok", { status: 200 });
+  };
+  try {
+    const response = await worker.fetch(new Request("https://edge.example.test/"), {
       RENDER_ORIGIN: "http://127.0.0.1:4141",
-    }),
-    /plain HTTPS origin/,
+      VERCEL_FRONTEND_ORIGIN: "https://frontend.example.test",
+    });
+    assert.equal(response.status, 200);
+    assert.equal(captured.url, "https://frontend.example.test/");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("returns structured health diagnostics for an invalid Render origin", async () => {
+  const response = await worker.fetch(
+    new Request("https://edge.example.test/__edge/health"),
+    { RENDER_ORIGIN: "http://127.0.0.1:4141" },
   );
+  assert.equal(response.status, 503);
+  assert.deepEqual(await response.json(), {
+    edge: "cloudflare-worker",
+    upstream: "unreachable",
+  });
 });
 
 test("edge health checks Render and reports whether Vercel is configured", async () => {
