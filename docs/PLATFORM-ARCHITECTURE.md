@@ -62,3 +62,14 @@ This registry is the desired routing contract, not proof that every route is liv
 3. Configure server-side Supabase access and RLS only for features that need persistence.
 4. Verify each provider with health checks and confirm the fallback behavior.
 5. Keep the Render production service and current public route unchanged until the full path passes.
+
+
+## Preview and development tooling
+
+Google Cloud Run is an optional preview-only runtime. Beta and experimental revisions are deployed with a unique tag and zero production traffic; the stable revision continues serving normal traffic. The preview workflow is manual, uses GitHub OIDC with Google Workload Identity Federation, and refuses to create missing Cloud Run services or Artifact Registry repositories. Preview deployment must not change public IAM access. Keep minimum instances at zero and cap preview instances.
+
+Context7 and Superpowers are development-time tools, not hosting providers. Context7 supplies current library/API documentation; Superpowers supplies structured planning, TDD, debugging, review and verification workflows. Neither belongs in application traffic routing.
+
+Release channels are Stable (default), Beta (opt-in) and Experimental (opt-in). Beta/Experimental remain isolated from production traffic and are never automatically promoted.
+
+Provider discovery distinguishes configuration from health: a configured provider is marked "not-checked" until an actual health probe succeeds. It must not be presented as healthy based only on environment variables.
