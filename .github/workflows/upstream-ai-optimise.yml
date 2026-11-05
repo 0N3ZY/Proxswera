@@ -4,6 +4,7 @@ on:
   workflow_run:
     workflows: ["Upstream Scramjet Sync"]
     types: [completed]
+    branches: [main]
 
 permissions:
   actions: write
@@ -40,8 +41,8 @@ jobs:
         run: |
           set -euo pipefail
           SINCE="$(date -u -d '30 minutes ago' +%s)"
-          PR_LIST="$(gh pr list --repo "$GH_REPO" --base main --state open --json number,headRefName,createdAt)"
-          PR="$(printf '%s' "$PR_LIST" | jq --arg since "$SINCE" '[.[] | select((.headRefName | startswith("upstream-sync/")) and ((.createdAt | fromdateiso8601) >= ($since | tonumber)))] | sort_by(.number) | last // empty')"
+          PR_LIST="$(gh pr list --repo "$GH_REPO" --base main --state open --json number,headRefName,headRepository,createdAt)"
+          PR="$(printf '%s' "$PR_LIST" | jq --arg since "$SINCE" --arg repo "$GH_REPO" '[.[] | select(.headRepository.nameWithOwner == $repo and (.headRefName | startswith("upstream-sync/")) and ((.createdAt | fromdateiso8601) >= ($since | tonumber)))] | sort_by(.number) | last // empty')"
           if [ -z "$PR" ]; then
             echo "found=false" >> "$GITHUB_OUTPUT"
             exit 0
