@@ -21,7 +21,7 @@ concurrency:
 jobs:
   deploy:
     name: Deploy Scramjet edge proxy
-    if: ${{ inputs.confirm_production_deploy == true }}
+    if: ${{ inputs.confirm_production_deploy == true && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     environment: cloudflare-production
     steps:
