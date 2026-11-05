@@ -613,3 +613,46 @@ jobs:
           cache: false
       - name: Run actionlint
         run: go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7
+
+  commit-pnpm-lockfile:
+    name: Commit generated pnpm lockfile
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: ${{ always() && github.event_name == 'pull_request' && github.head_ref == 'optimise/runtime-static-server' && github.actor == 'StringShot' && github.event.pull_request.head.repo.full_name == github.repository }}
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - name: Check out the trusted PR branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: false
+
+      - name: Download generated lockfile
+        id: lockfile
+        uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: generated-pnpm-lockfile
+          path: .
+
+      - name: Commit generated lockfile
+        if: steps.lockfile.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [[ ! -s pnpm-lock.yaml ]]; then
+            echo "No generated pnpm lockfile was found."
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pnpm-lock.yaml
+          if git diff --cached --quiet; then
+            echo "pnpm-lock.yaml is already up to date."
+            exit 0
+          fi
+          git commit -m "chore: add generated pnpm lockfile"
+          gh auth setup-git
+          git push origin "HEAD:${GITHUB_HEAD_REF}"
