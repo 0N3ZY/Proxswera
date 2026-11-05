@@ -28,3 +28,8 @@ test("Cloud Run preview deploys tagged zero-traffic revisions without public IAM
   assert.match(workflow, /get-iam-policy/);
   assert.match(workflow, /select\(\. == "allUsers" or \. == "allAuthenticatedUsers"\)/);
 });
+
+test("Cloud Run preview workflow only runs from trusted main", async () => {
+  const workflow = await readFile(new URL("../../.github/workflows/cloud-run-preview.yml", import.meta.url), "utf8");
+  assert.match(workflow, /github\.ref\s*==\s*['"]refs\/heads\/main['"]/);
+});
