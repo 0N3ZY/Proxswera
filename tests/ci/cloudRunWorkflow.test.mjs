@@ -24,5 +24,7 @@ test("Cloud Run preview deploys tagged zero-traffic revisions without public IAM
   assert.match(workflow, /--tag/);
   assert.match(workflow, /--min 0/);
   assert.match(workflow, /--max 1/);
-  assert.doesNotMatch(workflow, /--allow-unauthenticated|allUsers|allAuthenticatedUsers/);
+  assert.doesNotMatch(workflow, /--allow-unauthenticated|services add-iam-policy-binding/);
+  assert.match(workflow, /get-iam-policy/);
+  assert.match(workflow, /select\(\. == "allUsers" or \. == "allAuthenticatedUsers"\)/);
 });
