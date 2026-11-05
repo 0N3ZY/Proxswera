@@ -9,7 +9,7 @@
     "test:package": "ava tests/ci/packageValidation.js"
   },
   "engines": {
-    "node": ">=22.18.0"
+    "node": ">=22.18.0 <25"
   },
   "dependencies": {
     "@mercuryworkshop/wisp-js": "catalog:",
