@@ -93,7 +93,7 @@ async function startProductionServer() {
     if (pathname === "/__platforms") {
       const { discoverPlatforms } = await import("./platforms/discovery.js");
       const platforms = discoverPlatforms();
-      const body = JSON.stringify({ application: "scramjetfork", platforms });
+      const body = JSON.stringify({ application: "proxswera", platforms });
       res.writeHead(200, {
         "Content-Type": "application/json; charset=utf-8",
         "Cache-Control": "no-store",
@@ -170,7 +170,7 @@ async function startProductionServer() {
 
   attachWisp(server);
   server.listen(PORT, "0.0.0.0", () => {
-    console.log(`Scramjet production server listening on 0.0.0.0:${PORT}`);
+    console.log(`Proxswera production server listening on 0.0.0.0:${PORT}`);
     console.log(`Wisp WebSocket: ${process.env.VITE_WISP_URL}`);
     console.log("Health check: /healthz");
   });
@@ -201,7 +201,7 @@ async function startDevelopmentServer() {
   const server = http.createServer(vite.middlewares);
   attachWisp(server);
   server.listen(PORT, "0.0.0.0", () => {
-    console.log(`Scramjet development server listening on 0.0.0.0:${PORT}`);
+    console.log(`Proxswera development server listening on 0.0.0.0:${PORT}`);
     console.log(`Wisp WebSocket: ${process.env.VITE_WISP_URL}`);
   });
 
@@ -209,7 +209,7 @@ async function startDevelopmentServer() {
     devlib.runRspack(configModule.default);
   }
   const lines = [
-    devlib.black()("SCRAMJET SERVER"),
+    devlib.black()("PROXSWERA SERVER"),
     devlib.black()(`web @ http://localhost:${PORT}/`),
     devlib.black()(`wisp @ ${process.env.VITE_WISP_URL}`),
   ];
