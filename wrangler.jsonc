@@ -8,5 +8,10 @@
   "vars": {
     "RENDER_ORIGIN": "https://scramjetfork.onrender.com"
   },
+  "previews": {
+    "vars": {
+      "RENDER_ORIGIN": "https://scramjetfork-pr-1.onrender.com"
+    }
+  },
   "observability": { "enabled": false }
 }
