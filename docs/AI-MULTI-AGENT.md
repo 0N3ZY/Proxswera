@@ -6,7 +6,7 @@ The scheduled/manual self-heal workflow uses the multi-provider team after a pro
 
 Add these under **Repository Settings → Secrets and variables → Actions → New repository secret**. These are separate from Render service environment variables because the AI maintenance job runs on GitHub Actions. The workflows also accept the former `OPENROUTER_API_KEY`, `CLOUDFLARE_API_TOKEN`, and `CLOUDFLARE_ACCOUNT_ID` names as fallbacks while migrating.
 
-Cloudflare Pages deployment uses a separate GitHub Actions secret: `CFP_API_KEY`. It is not the Workers AI token and should remain scoped to Cloudflare Pages deployment permissions.
+Cloudflare Worker deployment uses a separate GitHub Actions secret: `CF_WORKERS_API_TOKEN`, scoped to Workers Scripts Write. The account identifier is supplied through `CF_ACCOUNT_ID` (or the legacy `CLOUDFLARE_ACCOUNT_ID`) secret. The production Worker workflow is manual-only, requires an explicit confirmation input, and uses the `cloudflare-production` GitHub environment. The `CF_API_KEY` above is for Workers AI model inference only; do not reuse it as a deployment token.
 
 | Secret | Purpose |
 |---|---|
