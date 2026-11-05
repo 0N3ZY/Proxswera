@@ -1,0 +1,113 @@
+name: Cloud Run Preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_cloud_costs:
+        description: "I understand this can incur Google Cloud usage and storage charges."
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy-preview:
+    if: ${{ inputs.confirm_cloud_costs == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: cloud-run-preview
+    env:
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      GCP_REGION: ${{ vars.GCP_REGION }}
+      GCP_ARTIFACT_REGISTRY_REPOSITORY: ${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY }}
+      CLOUD_RUN_SERVICE: ${{ vars.CLOUD_RUN_SERVICE }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_SERVICE_ACCOUNT: ${{ vars.GCP_SERVICE_ACCOUNT }}
+    steps:
+      - name: Check out selected branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Validate deployment configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in GCP_PROJECT_ID GCP_REGION GCP_ARTIFACT_REGISTRY_REPOSITORY CLOUD_RUN_SERVICE GCP_WORKLOAD_IDENTITY_PROVIDER GCP_SERVICE_ACCOUNT; do
+            if [[ -z "$(printenv "$name")" ]]; then
+              echo "::error::Missing $name in the cloud-run-preview GitHub environment."
+              exit 1
+            fi
+          done
+
+      - name: Authenticate to Google Cloud using GitHub OIDC
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Google Cloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Verify existing resources and private access
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud artifacts repositories describe "$GCP_ARTIFACT_REGISTRY_REPOSITORY" \
+            --location="$GCP_REGION" --project="$GCP_PROJECT_ID" --format=json >/dev/null
+          gcloud run services describe "$CLOUD_RUN_SERVICE" \
+            --region="$GCP_REGION" --project="$GCP_PROJECT_ID" --format=json >/dev/null
+          gcloud run services get-iam-policy "$CLOUD_RUN_SERVICE" \
+            --region="$GCP_REGION" --project="$GCP_PROJECT_ID" --format=json > /tmp/cloud-run-iam.json
+          if jq -e '.bindings[]?.members[]? | select(. == "allUsers" or . == "allAuthenticatedUsers")' /tmp/cloud-run-iam.json >/dev/null; then
+            echo "::error::The preview service has public IAM access. This workflow will not deploy to it."
+            exit 1
+          fi
+
+      - name: Build and push preview image
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud auth configure-docker "$GCP_REGION-docker.pkg.dev" --quiet
+          IMAGE="$GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$GCP_ARTIFACT_REGISTRY_REPOSITORY/scramjetfork:$GITHUB_SHA"
+          docker build --pull --tag "$IMAGE" .
+          docker push "$IMAGE"
+          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+        id: image
+
+      - name: Deploy tagged preview without production traffic
+        shell: bash
+        run: |
+          set -euo pipefail
+          PREVIEW_TAG="beta-$(printf '%s' "$GITHUB_SHA" | cut -c1-12)"
+          gcloud run deploy "$CLOUD_RUN_SERVICE" \
+            --image "$IMAGE" \
+            --region "$GCP_REGION" \
+            --project "$GCP_PROJECT_ID" \
+            --no-traffic \
+            --tag "$PREVIEW_TAG" \
+            --min 0 \
+            --max 1 \
+            --quiet
+          gcloud run services describe "$CLOUD_RUN_SERVICE" \
+            --region="$GCP_REGION" --project="$GCP_PROJECT_ID" --format=json > /tmp/cloud-run-service.json
+          PREVIEW_URL="$(jq -r --arg tag "$PREVIEW_TAG" '.status.traffic[]? | select(.tag == $tag) | .url // empty' /tmp/cloud-run-service.json)"
+          if [[ -z "$PREVIEW_URL" ]]; then
+            echo "::error::Cloud Run did not return a URL for preview tag $PREVIEW_TAG."
+            exit 1
+          fi
+          echo "preview_url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Cloud Run preview"
+            echo
+            echo "- Revision tag: $PREVIEW_TAG"
+            echo "- Production traffic: unchanged"
+            echo "- Preview URL: $PREVIEW_URL"
+            echo "- Access: existing Cloud Run IAM policy (this workflow does not make it public)"
+          } >> "$GITHUB_STEP_SUMMARY"
+        env:
+          IMAGE: ${{ steps.image.outputs.image }}
+        id: deploy
