@@ -7,6 +7,13 @@ assert.match(root.headers.get("content-type") || "", /text\/html/i, "Root should
 const html = await root.text();
 assert.ok(html.length > 100, "Root HTML should not be empty");
 
+const platformsResponse = await fetch(base + "/__platforms");
+assert.equal(platformsResponse.status, 200, "Platform discovery endpoint should be available in the production image");
+const platformStatus = await platformsResponse.json();
+assert.equal(platformStatus.application, "scramjetfork");
+assert.ok(Array.isArray(platformStatus.platforms), "Platform discovery should return provider status records");
+assert.ok(platformStatus.platforms.some((provider) => provider.name === "render"), "Render should be present in the provider registry");
+
 const healthHead = await fetch(base + "/healthz", { method: "HEAD" });
 assert.equal(healthHead.status, 200, "HEAD /healthz should return 200");
 assert.equal(await healthHead.text(), "", "HEAD /healthz must not return a body");
