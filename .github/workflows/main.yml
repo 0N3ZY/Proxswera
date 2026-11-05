@@ -404,7 +404,7 @@ jobs:
         with:
           name: Continuous Build
           tag: latest
-          commit: main
+          commit: ${{ github.sha }}
           body: "Build from ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"
           artifacts: "mercuryworkshop-scramjet-*.tgz,mercuryworkshop-scramjet-controller-*.tgz"
           prerelease: true
@@ -415,7 +415,7 @@ jobs:
         with:
           name: "${{ needs.version-check.outputs.scramjet_new_version }}"
           tag: "v${{ needs.version-check.outputs.scramjet_new_version }}"
-          commit: main
+          commit: ${{ github.sha }}
           body: "Build from ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"
           artifacts: "mercuryworkshop-scramjet-*.tgz"
 
@@ -425,7 +425,7 @@ jobs:
         with:
           name: "${{ needs.version-check.outputs.controller_new_version }}-controller"
           tag: "v${{ needs.version-check.outputs.controller_new_version }}-controller"
-          commit: main
+          commit: ${{ github.sha }}
           body: "Build from ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"
           artifacts: "mercuryworkshop-scramjet-controller-*.tgz"
           makeLatest: false
