@@ -557,7 +557,9 @@ jobs:
     needs: [frontend, tests, rewritertests]
     permissions: write-all
     if: ${{ github.ref == 'refs/heads/main' && inputs.confirm_production_release == true }}
-    environment: production-release
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Get artifacts
