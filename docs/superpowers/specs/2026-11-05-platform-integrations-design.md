@@ -1,10 +1,10 @@
-# Platform integration and preview-channel design
+# Proxswera platform integration and preview-channel design
 
 Date: 2026-11-05
 Status: authorised implementation direction
 
 ## Intent
-Make Scramjet's existing hosting and development services operate as one platform-aware system. Keep the stable application path dependable while allowing users to opt into isolated beta and experimental builds.
+Make Proxswera's hosting and development services operate as one platform-aware system. Keep the stable application path dependable while allowing users to opt into isolated beta and experimental builds.
 
 ## Goals
 - GitHub is the source of truth and release-control plane.
