@@ -10,7 +10,7 @@ assert.ok(html.length > 100, "Root HTML should not be empty");
 const platformsResponse = await fetch(base + "/__platforms");
 assert.equal(platformsResponse.status, 200, "Platform discovery endpoint should be available in the production image");
 const platformStatus = await platformsResponse.json();
-assert.equal(platformStatus.application, "scramjetfork");
+assert.equal(platformStatus.application, "proxswera");
 assert.ok(Array.isArray(platformStatus.platforms), "Platform discovery should return provider status records");
 assert.ok(platformStatus.platforms.some((provider) => provider.name === "render"), "Render should be present in the provider registry");
 
