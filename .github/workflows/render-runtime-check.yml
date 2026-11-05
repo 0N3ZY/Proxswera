@@ -40,6 +40,7 @@ jobs:
           node --check .github/scripts/ai-repair.mjs
           node --check .github/scripts/ai-team.mjs
           node --check .github/scripts/discover-reuse.mjs
+          node --check .github/scripts/reuse-provenance.mjs
           node --check .github/scripts/verify-ai-patch.mjs
           node --check scripts/smoke-runtime.mjs
           node --check worker/worker.js
