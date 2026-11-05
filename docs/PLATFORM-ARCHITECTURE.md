@@ -50,6 +50,7 @@ Never commit credentials. Use platform environment-variable stores. Preview envi
 - GitHub pull requests run validation and create isolated previews.
 - Vercel previews and Render PR previews are for testing only.
 - Production deploys, domain changes, schema migrations and traffic cutovers require an explicit approval gate.
+- GitHub Releases, npm publishing and GitHub Pages deployment are not run by ordinary pushes; they require a manual `workflow_dispatch` with `confirm_production_release=true`. Protect the `production-release` and `github-pages` environments with reviewers where available.
 - No paid-plan upgrades or analytics are enabled by this architecture.
 - Supabase exposed tables require RLS and policies designed for the actual ownership model.
 - No third-party source is installed or executed merely because it was discovered.
