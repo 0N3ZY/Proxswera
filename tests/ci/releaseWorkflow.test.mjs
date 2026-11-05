@@ -43,3 +43,9 @@ test("release jobs use only the GitHub permissions they need", () => {
   assert.match(pages, /pages:\s*write/);
   assert.match(pages, /id-token:\s*write/);
 });
+
+
+test("GitHub Releases are created from the exact commit that passed CI", () => {
+  assert.doesNotMatch(source, /^\s*commit:\s*main$/m);
+  assert.equal((source.match(/commit:\s*\$\{\{\s*github\.sha\s*\}\}/g) || []).length, 3);
+});
