@@ -1,4 +1,6 @@
 import { createStore } from "dreamland/core";
+import { normalizeHomeUrl, normalizeWispUrl } from "./settings-normalizers.js";
+export { normalizeHomeUrl, normalizeWispUrl } from "./settings-normalizers.js";
 
 export type AvailableTransports = "libcurl" | "epoxy";
 
@@ -29,41 +31,6 @@ export const demoSettingsStore = createStore(
     autosave: "auto",
   }
 );
-
-export function normalizeWispUrl(value: string) {
-  const trimmed = value.trim();
-  if (!trimmed) {
-    throw new TypeError("Wisp URL is required.");
-  }
-
-  let normalized = trimmed;
-  if (!normalized.startsWith("ws://") && !normalized.startsWith("wss://")) {
-    normalized = `ws://${normalized}`;
-  }
-
-  const parsed = new URL(normalized);
-  if (!parsed.pathname || parsed.pathname === "") {
-    parsed.pathname = "/";
-  }
-  if (!parsed.pathname.endsWith("/")) {
-    parsed.pathname = `${parsed.pathname}/`;
-  }
-
-  return parsed.toString();
-}
-
-export function normalizeHomeUrl(value: string) {
-  const trimmed = value.trim();
-  if (!trimmed) {
-    throw new TypeError("Home page URL is required.");
-  }
-
-  const normalized = /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//.test(trimmed)
-    ? trimmed
-    : `https://${trimmed}`;
-
-  return new URL(normalized).toString();
-}
 
 export function normalizeTransport(value: string): AvailableTransports {
   if (AVAILABLE_TRANSPORTS.some((t) => t.value === value)) {
