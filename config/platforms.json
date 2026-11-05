@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "application": "scramjetfork",
+  "application": "proxswera",
   "policy": {
     "discovery": "environment-and-health",
     "unknownProvider": "disabled",
