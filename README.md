@@ -48,6 +48,16 @@ These are inherited upstream examples, not a guarantee that every site or featur
 
 The rewriter build uses Rust and WebAssembly tooling. On Windows, use WSL or Git Bash and ensure the Rust toolchain is available in that environment.
 
+Install the Rust/WASM tools before building the rewriter:
+
+```sh
+rustup toolchain install nightly --component rust-src --target wasm32-unknown-unknown
+cargo install wasm-bindgen-cli --version 0.2.105
+cargo install --git https://github.com/r58playz/wasm-snip
+```
+
+Install [Binaryen](https://github.com/WebAssembly/binaryen) using its release for your operating system and ensure `wasm-opt` is on your PATH.
+
 ### Clone and install
 
 ```sh
