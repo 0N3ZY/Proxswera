@@ -44,3 +44,27 @@ test("discovery exposes capabilities and status but never environment values", (
   assert.equal(serialized.includes("do-not-expose-this"), false);
   assert.equal(status.find((p) => p.name === "supabase")?.available, true);
 });
+
+import platformConfig from "../../config/platforms.json" with { type: "json" };
+
+test("discovers Cloud Run only as an HTTPS experimental preview target", () => {
+  assert.equal(
+    selectPlatform("preview-deployments", {
+      CLOUD_RUN_PREVIEW_ORIGIN: "https://beta---scramjet-preview-abc.a.run.app",
+    })?.name,
+    "cloud-run",
+  );
+  assert.equal(
+    selectPlatform("preview-deployments", {
+      CLOUD_RUN_PREVIEW_ORIGIN: "http://beta.example.test",
+    }),
+    null,
+  );
+});
+
+test("keeps Context7 and Superpowers as development tools, not runtime providers", () => {
+  assert.equal(platformConfig.developmentTools.context7.scope, "development-time");
+  assert.equal(platformConfig.developmentTools.superpowers.scope, "development-time");
+  assert.equal(platformConfig.providers["cloud-run"].runtimeTraffic, false);
+  assert.equal(platformConfig.providers["cloud-run"].trafficRole, "preview");
+});
