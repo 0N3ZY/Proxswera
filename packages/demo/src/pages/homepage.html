@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>Scramjet Demo</title>
+		<title>Proxswera</title>
 		<style>
 			:root {
 				color-scheme: dark;
@@ -83,9 +83,9 @@
 	</head>
 	<body>
 		<main class="sheet">
-			<h1>Welcome to Scramjet!</h1>
+			<h1>Welcome to Proxswera!</h1>
 			<p class="meta">
-				Version {{SCRAMJET_VERSION}} |
+				Engine version {{SCRAMJET_VERSION}} |
 				<a
 					href="https://github.com/MercuryWorkshop/scramjet/commit/{{SCRAMJET_BUILD}}"
 					target="_blank"
@@ -96,13 +96,13 @@
 
 			<section class="section">
 				<p>
-					<a href="https://github.com/MercuryWorkshop/scramjet" target="_blank"
+					<a href="https://github.com/StringShot/Proxswera" target="_blank"
 						><strong>Scramjet</strong></a
 					>
 					is an experimental <strong>interception-based web proxy</strong>,
 					designed to evade internet censorship and bypass arbitrary browser
 					restrictions.<br /><br />
-					Scramjet allows you to sandbox arbitrary web content, bypass CORS
+					The underlying Scramjet engine can sandbox web content, bypass CORS
 					restrictions on loading websites, and instrument and debug websites
 					inside the browser itself. This is accomplished through a combination
 					of interception, rewriting, and sandboxing techniques. You can learn
@@ -112,7 +112,7 @@
 						target="_blank"
 						><strong>here</strong></a
 					>.<br /><br />
-					If you're interested in contributing to scramjet, or want to build
+					If you're interested in contributing to Proxswera, or want to build
 					your own web proxy or application using it, you should check out the
 					<a href="https://github.com/MercuryWorkshop/scramjet" target="_blank"
 						><strong>GitHub repository</strong></a
@@ -146,7 +146,7 @@
 			<section class="section">
 				<span class="label">Requests</span>
 				<p>
-					You can inspect all the requests sent through scramjet, and what
+					You can inspect requests sent through Proxswera, and what
 					transformations are applied in the requests tab.<br />
 					Note that requests will not be captured until you first click on the
 					requests tab.
@@ -157,7 +157,7 @@
 				<span class="label">Playground</span>
 				<p>
 					The playground lets you write your own html/css/js snippets which will
-					be run inside the scramjet sandbox. Your files are "served" by
+					be run inside the Scramjet sandbox used by Proxswera. Your files are "served" by
 					scramjet from a fake origin, which can be configured to be any URL.
 					Notice that if you add a <code>console.log(location.href)</code> in
 					your code, the page will really be running on the fake origin.
