@@ -52,6 +52,8 @@ RUN pnpm install --prod --filter scramjet-root --no-frozen-lockfile \
     && rm -rf /root/.cache/node/corepack /root/.local/share/pnpm/store
 
 COPY --from=build --chown=node:node /app/devserver.ts ./devserver.ts
+COPY --from=build --chown=node:node /app/platforms ./platforms
+COPY --from=build --chown=node:node /app/config/platforms.json ./config/platforms.json
 COPY --from=build --chown=node:node /app/packages/demo/dist ./packages/demo/dist
 
 USER node
