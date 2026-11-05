@@ -92,6 +92,32 @@
         "rlsRequiredForExposedTables": true,
         "neverUseUserMetadataForAuthorization": true
       }
+    },
+    "cloud-run": {
+      "kind": "preview-runtime",
+      "capabilities": [
+        "container-runtime",
+        "preview-deployments",
+        "tagged-revisions",
+        "no-traffic-rollouts",
+        "scale-to-zero"
+      ],
+      "trafficRole": "preview",
+      "runtimeTraffic": false,
+      "required": false,
+      "environment": {
+        "previewOrigin": "CLOUD_RUN_PREVIEW_ORIGIN"
+      },
+      "deployment": {
+        "trigger": "manual-workflow-dispatch",
+        "authentication": "github-oidc-workload-identity-federation",
+        "productionTraffic": false,
+        "minimumInstances": 0,
+        "maximumInstances": 1,
+        "requiresExistingService": true,
+        "requiresExistingArtifactRegistry": true,
+        "publicAccessChanges": false
+      }
     }
   },
   "routes": [
@@ -144,5 +170,50 @@
       "cache": "static-assets-only",
       "reason": "Frontend navigation and static assets use Vercel when configured."
     }
-  ]
+  ],
+  "developmentTools": {
+    "context7": {
+      "kind": "documentation-tool",
+      "scope": "development-time",
+      "capabilities": [
+        "versioned-library-documentation",
+        "api-reference",
+        "current-examples"
+      ]
+    },
+    "superpowers": {
+      "kind": "engineering-workflow-tool",
+      "scope": "development-time",
+      "capabilities": [
+        "brainstorming",
+        "planning",
+        "test-driven-development",
+        "debugging",
+        "code-review",
+        "verification"
+      ]
+    }
+  },
+  "releaseChannels": {
+    "stable": {
+      "default": true,
+      "optIn": false,
+      "productionTraffic": true,
+      "promotionRequiresApproval": true
+    },
+    "beta": {
+      "default": false,
+      "optIn": true,
+      "provider": "cloud-run",
+      "productionTraffic": false,
+      "autoPromotion": false
+    },
+    "experimental": {
+      "default": false,
+      "optIn": true,
+      "provider": "cloud-run",
+      "productionTraffic": false,
+      "autoPromotion": false
+    }
+  }
 }
