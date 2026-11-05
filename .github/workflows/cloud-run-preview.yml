@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   deploy-preview:
-    if: ${{ inputs.confirm_cloud_costs == true }}
+    if: ${{ inputs.confirm_cloud_costs == true && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: cloud-run-preview
