@@ -1,6 +1,6 @@
 # Cloud Run previews
 
-Cloud Run is an optional beta/experimental runtime for Scramjet. This workflow is deliberately manual and does not alter the stable production traffic allocation.
+Cloud Run is an optional beta/experimental preview runtime for Proxswera. This workflow is deliberately manual and does not alter the stable production traffic allocation.
 
 ## Safety behavior
 
