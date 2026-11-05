@@ -42,7 +42,8 @@ test("discovery exposes capabilities and status but never environment values", (
   });
   const serialized = JSON.stringify(status);
   assert.equal(serialized.includes("do-not-expose-this"), false);
-  assert.equal(status.find((p) => p.name === "supabase")?.available, true);
+  assert.equal(status.find((p) => p.name === "supabase")?.configured, true);
+  assert.equal(status.find((p) => p.name === "supabase")?.health, "not-checked");
 });
 
 import platformConfig from "../../config/platforms.json" with { type: "json" };
