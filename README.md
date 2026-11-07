@@ -1,10 +1,10 @@
-<h1 align="center">Scramjet</h1>
+<h1 align="center">Proxswera</h1>
 <div align="center">
   <img src="assets/scramjet.png" height="200" />
 </div>
 
 <div align="center">
-  <a href="https://www.npmjs.com/package/@mercuryworkshop/scramjet"><img src="https://img.shields.io/npm/v/@stringshot/proxswera.svg?maxAge=3600" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/@stringshot/proxswera"><img src="https://img.shields.io/npm/v/@stringshot/proxswera.svg?maxAge=3600" alt="npm version" /></a>
   <img src="https://img.shields.io/github/issues/StringShot/Proxswera?style=flat&color=orange" />
   <img src="https://img.shields.io/github/stars/StringShot/Proxswera?style=flat&color=orange" />
 </div>
