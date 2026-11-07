@@ -1,6 +1,6 @@
 # Proxswera project status and development history
 
-**Snapshot date:** 2026-11-05  
+**Snapshot date:** 2026-11-07  
 **Repository:** [StringShot/Proxswera](https://github.com/StringShot/Proxswera)  
 **Upstream:** [MercuryWorkshop/Scramjet](https://github.com/MercuryWorkshop/scramjet)
 
@@ -57,7 +57,7 @@ A browser application cannot install GPU drivers or directly control a graphics 
 
 | Platform / tool | Recorded use and current state |
 | --- | --- |
-| **GitHub** | Primary source repository, pull requests, Actions CI, maintenance workflows, upstream sync, AI repair/review and provenance records. |
+| **GitHub** | Primary source repository, pull requests, Actions CI, code review and upstream sync. |
 | **Render** | Primary Node/Wisp runtime target. The production service is labelled `Proxswera` and currently reports `https://scramjetfork.onrender.com`; the PR #1 preview is `https://scramjetfork-pr-1.onrender.com`. Both provider-generated addresses still use legacy slugs, so they are deliberately retained until Render confirms replacement URLs. |
 | **Vercel** | Project is named `proxswera` and `https://proxswera.vercel.app` has now been added and verified as a project domain. The previous `scramjetfork-frontend.vercel.app` domain remains attached during transition. The latest deployment reports `ERROR` and the project is not marked live, so the new address is registered but not yet a confirmed working frontend. |
 | **Cloudflare Workers** | Account Worker is named `proxswera`, matching `wrangler.jsonc`, but the existing deployed script was a dashboard-generated Hello World rather than a verified Proxswera edge deployment. `workers.dev` is disabled and no custom Worker domains are attached. Do not enable public routing until the application Worker is deployed and HTTP/WebSocket-tested. |
@@ -68,27 +68,7 @@ A browser application cannot install GPU drivers or directly control a graphics 
 | **Superpowers** | Development-time engineering workflow support for planning, TDD, debugging, review, and verification. Not a hosting provider. |
 | **Docker** | Reproducible multi-stage production image build and isolated runtime smoke testing. |
 | **Node.js, pnpm, Rust, WebAssembly, Vite, Rspack** | Core development/build toolchain. |
-| **GitHub, GitLab, Bitbucket, Codeberg** | Public source-host discovery targets for research/reuse. Other HTTPS Git hosts can be configured; Cursor ecosystem repositories are discoverable as public projects, but there is no confirmed dedicated Cursor Origins API integration. |
-
-### AI provider integrations
-
-The maintenance workflows contain adapters/configuration for Google Gemini, Groq, OpenRouter, Mistral, and Cloudflare Workers AI. These are supported provider options in automation code, not proof that every provider credential is configured, available, or actively used. Provider quotas and terms can change; model-name selection alone cannot guarantee that provider-side billing will never occur.
-
-Private ChatGPT, Cursor, Claude, and Gemini conversation histories are not automatically accessible to GitHub Actions. Only explicitly selected, non-secret lessons should be added to project memory.
-
-## AI maintenance and open-source research
-
-Implemented workflow/code paths include:
-- Scheduled/manual self-healing checks that can request repair proposals from multiple model providers.
-- Distinct patch-author, security-reviewer, and independent-reviewer roles.
-- Deterministic patch verification and test/build gates before a repair PR is opened.
-- Daily upstream Scramjet sync proposals on dedicated branches.
-- AI-assisted optimisation proposals after upstream changes.
-- Public repository discovery across GitHub, GitLab, Bitbucket, and Codeberg, plus configured HTTPS Git repositories.
-- Licence/provenance checks; candidate projects are research inputs and are not installed or executed by discovery.
-- Shared durable project memory in `docs/AI-PROJECT-MEMORY.md`.
-
-These workflows propose changes through pull requests. They do not authorise automatic application merges or production deployments.
+| **GitHub, GitLab, Bitbucket, Codeberg** | Public source-hosts available for future research. |
 
 ## Intended platform architecture
 
@@ -117,7 +97,7 @@ This is a target architecture, not a claim that all traffic currently flows thro
 
 | Date | Work recorded |
 | --- | --- |
-| 2026-11-04 | Runtime optimisation and AI maintenance work developed on the maintenance PR branch; production Docker/runtime validation passed on earlier revisions. |
-| 2026-11-05 | Platform architecture, provider registry, manual Cloud Run preview design, AI project memory, cross-host reuse research, and additional runtime/CI checks added to maintenance work. |
+| 2026-11-04 | Runtime optimisation and hosting work developed on the maintenance PR branch; production Docker/runtime validation passed on earlier revisions. |
+| 2026-11-05 | Platform architecture, manual Cloud Run preview design, and additional runtime/CI checks added to maintenance work. |
 | 2026-11-05 | GitHub repository renamed to Proxswera and its README introduction updated on the default branch. |
 | 2026-11-05 | Product identity, local setup, demo titles, and progress documentation updated on the maintenance PR branch. |
