@@ -14,11 +14,11 @@ test("routes normal frontend traffic to Vercel when configured", async () => {
       new Request("https://edge.example.test/assets/app.js?v=3"),
       {
         RENDER_ORIGIN: "https://scramjetfork.onrender.com",
-        VERCEL_FRONTEND_ORIGIN: "https://scramjetfork-frontend.vercel.app",
+        VERCEL_FRONTEND_ORIGIN: "https://proxswera.vercel.app",
       },
     );
     assert.equal(await response.text(), "frontend-ok");
-    assert.equal(captured.url, "https://scramjetfork-frontend.vercel.app/assets/app.js?v=3");
+    assert.equal(captured.url, "https://proxswera.vercel.app/assets/app.js?v=3");
     assert.equal(response.headers.get("x-scramjet-platform"), "vercel");
     assert.equal(captured.headers.get("x-forwarded-host"), "edge.example.test");
   } finally {
@@ -38,7 +38,7 @@ test("routes API traffic to Render even when Vercel is configured", async () => 
       new Request("https://edge.example.test/api/session"),
       {
         RENDER_ORIGIN: "https://scramjetfork.onrender.com",
-        VERCEL_FRONTEND_ORIGIN: "https://scramjetfork-frontend.vercel.app",
+        VERCEL_FRONTEND_ORIGIN: "https://proxswera.vercel.app",
       },
     );
     assert.equal(captured.url, "https://scramjetfork.onrender.com/api/session");
@@ -59,7 +59,7 @@ test("routes Wisp WebSocket upgrades to Render", async () => {
       new Request("https://edge.example.test/", { headers: { upgrade: "websocket" } }),
       {
         RENDER_ORIGIN: "https://scramjetfork.onrender.com",
-        VERCEL_FRONTEND_ORIGIN: "https://scramjetfork-frontend.vercel.app",
+        VERCEL_FRONTEND_ORIGIN: "https://proxswera.vercel.app",
       },
     );
     assert.equal(captured.url, "https://scramjetfork.onrender.com/");
@@ -139,7 +139,7 @@ test("edge health checks Render and reports whether Vercel is configured", async
       new Request("https://edge.example.test/__edge/health"),
       {
         RENDER_ORIGIN: "https://scramjetfork.onrender.com",
-        VERCEL_FRONTEND_ORIGIN: "https://scramjetfork-frontend.vercel.app",
+        VERCEL_FRONTEND_ORIGIN: "https://proxswera.vercel.app",
       },
     );
     assert.equal(response.status, 200);
