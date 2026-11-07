@@ -14,7 +14,7 @@
 
 **Proxswera** is an open-source browser and web proxy built upon the [Scramjet](https://github.com/MercuryWorkshop/scramjet) engine. It is designed to help people access the open web in environments affected by internet censorship and network restrictions.
 
-The project builds on Scramjet's interception, rewriting, and sandboxing techniques. Proxswera is maintained through AI-assisted engineering and human contributions, with an emphasis on compatibility, performance, reliability, security, and transparent development.
+The project builds on Scramjet's interception, rewriting, and sandboxing techniques. Proxswera is maintained through human contributions, with an emphasis on compatibility, performance, reliability, security, and transparent development.
 
 > Proxswera is a fork and continuing project, not a claim of original authorship over the Scramjet engine. Upstream code, package names, notices, and licence obligations are retained where required.
 
@@ -110,11 +110,9 @@ Open **http://localhost:10000**. The production runtime exposes `/healthz`; Wisp
 
 ## Project documentation
 
-- [Project status and work completed](docs/PROJECT-STATUS.md) — infrastructure, AI maintenance, testing, hardware acceleration research, and known gaps.
+- [Project status and work completed](docs/PROJECT-STATUS.md) — infrastructure, testing, hardware acceleration research, and known gaps.
 - [Development guide](docs/DEVELOPMENT.md)
 - [Platform architecture](docs/PLATFORM-ARCHITECTURE.md)
-- [AI project memory](docs/AI-PROJECT-MEMORY.md)
-- [Collaborative AI maintenance](docs/AI-MULTI-AGENT.md)
 - [Cloud Run previews](docs/CLOUD-RUN-PREVIEWS.md)
 
 ## Upstream project and licensing
