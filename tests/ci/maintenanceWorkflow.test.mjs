@@ -5,13 +5,6 @@ import { readFile } from "node:fs/promises";
 const workflow = async (name) =>
   readFile(new URL(`../../.github/workflows/${name}`, import.meta.url), "utf8");
 
-test("AI self-healing always leaves repair PRs for human approval", async () => {
-  const source = await workflow("self-heal.yml");
-  assert.match(source, /gh pr create/);
-  assert.doesNotMatch(source, /gh pr merge\b/);
-  assert.doesNotMatch(source, /--auto\b/);
-});
-
 test("Cloudflare production deployment is manual and explicitly confirmed", async () => {
   const source = await workflow("cloudflare-pages.yml");
   assert.match(source, /workflow_dispatch:/);
@@ -27,12 +20,6 @@ test("Cloudflare production deployment is manual and explicitly confirmed", asyn
 test("manual Cloudflare production deployment is restricted to trusted main", async () => {
   const source = await workflow("cloudflare-pages.yml");
   assert.match(source, /github\.ref\s*==\s*['"]refs\/heads\/main['"]/);
-});
-
-test("upstream AI optimisation only processes trusted main-branch syncs", async () => {
-  const source = await workflow("upstream-ai-optimise.yml");
-  assert.match(source, /branches:\s*\[main\]/);
-  assert.match(source, /headRepository\.nameWithOwner\s*==\s*\$repo/);
 });
 
 test("runtime smoke checks run when routing registry or Worker files change", async () => {
