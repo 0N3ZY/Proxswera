@@ -20,7 +20,7 @@ Proxswera builds on Scramjet's interception, rewriting, and sandboxing technique
 
 ## Supported Sites
 
-Some of the popular websites that Scramjet supports include:
+Some of the popular websites that Proxswera supports include:
 
 - [Google](https://google.com)
 - [Youtube](https://youtube.com)
@@ -45,18 +45,18 @@ Some of the popular websites that Scramjet supports include:
 
 #### Building
 
-- Clone the repository with `git clone --recursive https://github.com/MercuryWorkshop/scramjet`
+- Clone the repository with `git clone --recursive https://github.com/StringShot/Proxswera`
 - Install the dependencies with `pnpm i`
 - Change directories with `cd packages/core`
 - Build the rewriter with `pnpm rewriter:build`
 - Build Scramjet with `pnpm build`
 
-### Running Scramjet Locally
+### Running Proxswera Locally
 
-You can run the Scramjet dev server when running this command at the root
+You can run the Proxswera dev server when running this command at the root
 
 ```sh
 pnpm dev
 ```
 
-The demo page for scramjet should now be running at <http://localhost:4141> and should rebuild upon a file being changed (excluding the rewriter).
+The demo page for Proxswera should now be running at <http://localhost:4141> and should rebuild upon a file being changed (excluding the rewriter).
