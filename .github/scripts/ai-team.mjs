@@ -54,7 +54,7 @@ async function ask(a,prompt,temp=0.1){
  try{
  let url,headers,body;
  if(a.kind==="gemini"){url="https://generativelanguage.googleapis.com/v1beta/models/"+a.model+":generateContent?key="+encodeURIComponent(a.key);headers={"Content-Type":"application/json"};body={contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:{thinkingConfig:{thinkingLevel:"MEDIUM"},maxOutputTokens:10000}};}
- else{url=a.url;headers={Authorization:"Bearer "+a.key,"Content-Type":"application/json"};if(a.id==="openrouter")Object.assign(headers,{"HTTP-Referer":"https://github.com/StringShot/scramjetfork","X-Title":"Scramjet AI"});body={model:a.model,messages:[{role:"user",content:prompt}],temperature:temp,max_tokens:10000};}
+ else{url=a.url;headers={Authorization:"Bearer "+a.key,"Content-Type":"application/json"};if(a.id==="openrouter")Object.assign(headers,{"HTTP-Referer":"https://github.com/StringShot/Proxswera","X-Title":"Proxswera AI"});body={model:a.model,messages:[{role:"user",content:prompt}],temperature:temp,max_tokens:10000};}
  const r=await fetch(url,{method:"POST",headers,body:JSON.stringify(body),signal:c.signal}),raw=await r.text();if(!r.ok)throw Error("HTTP "+r.status+": "+scrub(raw).slice(0,250));const d=JSON.parse(raw);
  return (a.kind==="gemini"?(d.candidates?.[0]?.content?.parts||[]).map(x=>x.text||"").join("\n"):d.choices?.[0]?.message?.content||"").slice(0,90000);
  }finally{clearTimeout(t);}

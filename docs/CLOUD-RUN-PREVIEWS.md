@@ -34,7 +34,7 @@ These are identifiers, not secret keys. The authentication action obtains short-
 1. Confirm the Google Cloud project has billing configured and decide an explicit spending limit before using the workflow.
 2. Enable the required Cloud Run, Artifact Registry and IAM Credentials APIs only if you have approved that setup.
 3. Create a Docker Artifact Registry repository and a Cloud Run service in the same region. The workflow will not create either.
-4. Configure Workload Identity Federation for GitHub Actions. Restrict the provider condition to repository StringShot/scramjetfork and the intended branch/environment; do not allow arbitrary repositories to impersonate the service account.
+4. Configure Workload Identity Federation for GitHub Actions. Restrict the provider condition to repository StringShot/Proxswera and the intended branch/environment; do not allow arbitrary repositories to impersonate the service account.
 5. Grant the service account only the roles needed to push to the existing repository and deploy/update the existing Cloud Run service. Grant service-account user only on the Cloud Run runtime identity if required.
 6. Restrict the service account impersonation binding to the GitHub repository's Workload Identity principal and intended ref.
 7. Add the six GitHub environment variables above. Configure environment protection/branch restrictions.

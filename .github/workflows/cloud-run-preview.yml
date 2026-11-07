@@ -72,7 +72,7 @@ jobs:
         run: |
           set -euo pipefail
           gcloud auth configure-docker "$GCP_REGION-docker.pkg.dev" --quiet
-          IMAGE="$GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$GCP_ARTIFACT_REGISTRY_REPOSITORY/scramjetfork:$GITHUB_SHA"
+          IMAGE="$GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$GCP_ARTIFACT_REGISTRY_REPOSITORY/proxswera:$GITHUB_SHA"
           docker build --pull --tag "$IMAGE" .
           docker push "$IMAGE"
           echo "image=$IMAGE" >> "$GITHUB_OUTPUT"

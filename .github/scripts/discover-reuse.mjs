@@ -12,7 +12,7 @@ const candidates = new Map();
 
 async function json(url, headers = {}) {
   try {
-    const response = await fetch(url, { headers: { Accept: "application/json", "User-Agent": "ScramjetFork-ResearchBot", ...headers }, signal: AbortSignal.timeout(12000) });
+    const response = await fetch(url, { headers: { Accept: "application/json", "User-Agent": "Proxswera-ResearchBot", ...headers }, signal: AbortSignal.timeout(12000) });
     if (!response.ok) return null;
     return await response.json();
   } catch { return null; }
