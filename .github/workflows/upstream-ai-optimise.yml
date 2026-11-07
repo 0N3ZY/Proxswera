@@ -123,15 +123,15 @@ jobs:
       - name: Build optimised production image
         if: steps.verify.outcome == 'success'
         working-directory: candidate
-        run: docker build --progress=plain -t scramjetfork-ai-optimised .
+        run: docker build --progress=plain -t proxswera-ai-optimised .
 
       - name: Test optimised runtime
         if: steps.verify.outcome == 'success'
         working-directory: candidate
         run: |
           set -euo pipefail
-          docker run -d --name scramjetfork-ai-optimised -e NODE_ENV=production -e PORT=10000 -p 10000:10000 scramjetfork-ai-optimised
-          cleanup() { docker rm -f scramjetfork-ai-optimised >/dev/null 2>&1 || true; }
+          docker run -d --name proxswera-ai-optimised -e NODE_ENV=production -e PORT=10000 -p 10000:10000 proxswera-ai-optimised
+          cleanup() { docker rm -f proxswera-ai-optimised >/dev/null 2>&1 || true; }
           trap cleanup EXIT
           for attempt in $(seq 1 30); do
             : "$attempt"
@@ -139,9 +139,9 @@ jobs:
             sleep 2
           done
           curl --fail --show-error http://127.0.0.1:10000/healthz
-          docker exec --user root scramjetfork-ai-optimised ln -s /etc/passwd /app/packages/demo/dist/__outside.txt
-          docker cp ../scripts/smoke-runtime.mjs scramjetfork-ai-optimised:/tmp/smoke-runtime.mjs
-          docker exec --user node scramjetfork-ai-optimised node /tmp/smoke-runtime.mjs
+          docker exec --user root proxswera-ai-optimised ln -s /etc/passwd /app/packages/demo/dist/__outside.txt
+          docker cp ../scripts/smoke-runtime.mjs proxswera-ai-optimised:/tmp/smoke-runtime.mjs
+          docker exec --user node proxswera-ai-optimised node /tmp/smoke-runtime.mjs
 
       - name: Open optimisation pull request and dispatch full CI
         if: steps.verify.outcome == 'success'

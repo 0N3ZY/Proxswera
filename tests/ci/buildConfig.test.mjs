@@ -11,6 +11,7 @@ test("pins Node to the supported major and pnpm to the workspace version", async
 
 test("Cloudflare config keeps the disabled workers.dev endpoint and preview URLs disabled", async () => {
   const config = JSON.parse(await readFile(new URL("../../wrangler.jsonc", import.meta.url), "utf8"));
+  assert.equal(config.name, "proxswera");
   assert.equal(config.workers_dev, false);
   assert.equal(config.preview_urls, false);
 });

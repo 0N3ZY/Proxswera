@@ -36,7 +36,7 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
-          docker build --progress=plain -t scramjetfork-ci . 2>&1 | tee build.log
+          docker build --progress=plain -t proxswera-ci . 2>&1 | tee build.log
 
       - name: Check live Render health
         id: health
@@ -90,15 +90,15 @@ jobs:
         if: steps.verify.outcome == 'success'
         run: |
           set -o pipefail
-          docker build --progress=plain -t scramjetfork-repaired . 2>&1 | tee repaired-build.log
+          docker build --progress=plain -t proxswera-repaired . 2>&1 | tee repaired-build.log
 
       - name: Smoke-test repaired production image
         id: smoke
         if: steps.repaired_build.outcome == 'success'
         run: |
           set -euo pipefail
-          docker run -d --name scramjetfork-repaired -e NODE_ENV=production -e PORT=10000 -p 10000:10000 scramjetfork-repaired
-          cleanup() { docker rm -f scramjetfork-repaired >/dev/null 2>&1 || true; }
+          docker run -d --name proxswera-repaired -e NODE_ENV=production -e PORT=10000 -p 10000:10000 proxswera-repaired
+          cleanup() { docker rm -f proxswera-repaired >/dev/null 2>&1 || true; }
           trap cleanup EXIT
           for attempt in $(seq 1 30); do
             : "$attempt"
@@ -108,9 +108,9 @@ jobs:
             sleep 2
           done
           curl --fail --show-error http://127.0.0.1:10000/healthz
-          docker exec --user root scramjetfork-repaired ln -s /etc/passwd /app/packages/demo/dist/__outside.txt
-          docker cp scripts/smoke-runtime.mjs scramjetfork-repaired:/tmp/smoke-runtime.mjs
-          docker exec --user node scramjetfork-repaired node /tmp/smoke-runtime.mjs
+          docker exec --user root proxswera-repaired ln -s /etc/passwd /app/packages/demo/dist/__outside.txt
+          docker cp scripts/smoke-runtime.mjs proxswera-repaired:/tmp/smoke-runtime.mjs
+          docker exec --user node proxswera-repaired node /tmp/smoke-runtime.mjs
 
       - name: Create repair pull request
         if: steps.smoke.outcome == 'success'

@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "scramjetfork",
+  "name": "proxswera",
   "main": "worker/worker.js",
   "compatibility_date": "2026-11-05",
   "workers_dev": false,
